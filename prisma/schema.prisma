@@ -1,0 +1,104 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Enums (Basados en tus ENUM de SQL) ---
+enum Rol {
+  cliente
+  administrador
+}
+
+enum EstadoCategoria {
+  Activo
+  Inactivo
+}
+
+enum EstadoPedido {
+  Pendiente
+  En_Preparacion @map("En Preparacion") // Mapeamos espacios para evitar errores
+  Listo_Retiro   @map("Listo para Retiro")
+  Retirado
+  Cancelado
+}
+
+// --- Modelos ---
+
+model Usuario {
+  usuario_id     Int      @id @default(autoincrement())
+  nombres        String   @db.VarChar(100)
+  apellidos      String   @db.VarChar(100)
+  telefono       String?  @db.VarChar(20)
+  email          String   @unique @db.VarChar(150)
+  password_hash  String   @db.VarChar(255)
+  rol            Rol      @default(cliente)
+  fecha_registro DateTime @default(now()) @db.Timestamp(0)
+  
+  // Relaciones
+  pedidos        Pedido[]
+
+  @@map("Usuarios") // Nombre real de la tabla en BD
+}
+
+model Categoria {
+  categoria_id Int             @id @default(autoincrement())
+  nombre       String          @db.VarChar(100)
+  descripcion  String?         @db.Text
+  estado       EstadoCategoria @default(Activo)
+  
+  // Relaciones
+  productos    Producto[]
+
+  @@map("Categorias")
+}
+
+model Producto {
+  producto_id  Int      @id @default(autoincrement())
+  imagen       String?  @db.Text
+  nombre       String   @db.VarChar(150)
+  descripcion  String?  @db.Text
+  precio       Decimal  @db.Decimal(10, 2)
+  stock        Int      @default(0)
+  categoria_id Int?
+  
+  // Relaciones
+  categoria    Categoria? @relation(fields: [categoria_id], references: [categoria_id])
+  detalles     ProductoPedido[]
+
+  @@map("Productos")
+}
+
+model Pedido {
+  pedido_id    Int          @id @default(autoincrement())
+  usuario_id   Int?
+  fecha_pedido DateTime     @default(now()) @db.Timestamp(0)
+  estado       EstadoPedido @default(Pendiente)
+  total        Decimal      @default(0) @db.Decimal(10, 2)
+
+  // Relaciones
+  usuario      Usuario?     @relation(fields: [usuario_id], references: [usuario_id])
+  detalles     ProductoPedido[]
+
+  @@map("Pedidos")
+}
+
+model ProductoPedido {
+  pedido_id       Int
+  producto_id     Int
+  cantidad        Int
+  precio_unitario Decimal @db.Decimal(10, 2)
+
+  // Relaciones
+  pedido   Pedido   @relation(fields: [pedido_id], references: [pedido_id], onDelete: Cascade)
+  producto Producto @relation(fields: [producto_id], references: [producto_id])
+
+  // Llave primaria compuesta (N:M)
+  @@id([pedido_id, producto_id])
+  @@map("ProductosPedido")
+}

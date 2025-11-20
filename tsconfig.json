@@ -1,0 +1,30 @@
+// tsconfig.json (Versión Optimizada y Compatible)
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // File Layout
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Environment Settings (Base para Node ESM)
+    "module": "CommonJS",
+    "moduleResolution": "node", // Debe ser NodeNext
+    "target": "esnext",
+    "types": ["node"],
+
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    
+    // Recommended Options
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true, // Importante para las importaciones 'require'
+    "forceConsistentCasingInFileNames": true
+  }
+}
