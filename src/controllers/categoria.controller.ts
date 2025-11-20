@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { CategoriaService } from '../services/categoria.service';
 // Importamos la interfaz extendida del middleware para acceder a req.usuarioId/req.rol
 import { AuthRequest } from '../middlewares/auth.middleware.js'; 
+import { RequestHelpers } from '../utils/request-helpers';
 
 export class CategoriaController {
   constructor(private categoriaService: CategoriaService) {}
@@ -26,14 +27,8 @@ export class CategoriaController {
   
   async findById(req: Request, res: Response) {
     try {
-      const idParam = req.params.id;
-      if (typeof idParam === 'undefined') {
-        return res.status(400).json({ message: 'El id es requerido' });
-      }
-      const id = parseInt(idParam, 10);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: 'Id inválido' });
-      }
+      const id = RequestHelpers.getIdParam(req, res);
+      if (id === null) return;
 
       const categoria = await this.categoriaService.findById(id);
       res.status(200).json(categoria);
@@ -44,14 +39,8 @@ export class CategoriaController {
 
   async update(req: Request, res: Response) {
     try {
-      const idParam = req.params.id;
-      if (typeof idParam === 'undefined') {
-        return res.status(400).json({ message: 'El id es requerido' });
-      }
-      const id = parseInt(idParam, 10);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: 'Id inválido' });
-      }
+      const id = RequestHelpers.getIdParam(req, res);
+      if (id === null) return;
 
       const categoria = await this.categoriaService.update(id, req.body);
       res.status(200).json(categoria);
@@ -62,14 +51,8 @@ export class CategoriaController {
 
   async delete(req: Request, res: Response) {
     try {
-      const idParam = req.params.id;
-      if (typeof idParam === 'undefined') {
-        return res.status(400).json({ message: 'El id es requerido' });
-      }
-      const id = parseInt(idParam, 10);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: 'Id inválido' });
-      }
+      const id = RequestHelpers.getIdParam(req, res);
+      if (id === null) return;
 
       await this.categoriaService.delete(id);
       res.status(200).json({ message: 'Categoría eliminada exitosamente' });

@@ -8,6 +8,11 @@ import { PrismaCategoriaRepository } from "../repositories/categoria.repository"
 import { CategoriaService } from "../services/categoria.service";
 import { CategoriaController } from "../controllers/categoria.controller";
 
+// Módulo de Productos
+import { PrismaProductoRepository } from "../repositories/producto.repository";
+import { ProductoService } from "../services/producto.service";
+import { ProductoController } from "../controllers/producto.controller";
+
 // --- Auth Module Instances ---
 const usuarioRepository = new PrismaUsuarioRepository();
 const authService = new AuthService(usuarioRepository);
@@ -18,4 +23,13 @@ const categoriaRepository = new PrismaCategoriaRepository();
 const categoriaService = new CategoriaService(categoriaRepository);
 const categoriaController = new CategoriaController(categoriaService);
 
-export { authController, categoriaController };
+// --- Producto Module Instances ---
+const productoRepository = new PrismaProductoRepository();
+const productoService = new ProductoService(productoRepository);
+const productoController = new ProductoController(productoService);
+
+export { 
+    authController, 
+    categoriaController,
+    productoController 
+};

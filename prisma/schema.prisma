@@ -60,7 +60,7 @@ model Categoria {
 
 model Producto {
   producto_id  Int      @id @default(autoincrement())
-  imagen       String?  @db.Text
+  imagen       String?  @db.MediumText
   nombre       String   @db.VarChar(150)
   descripcion  String?  @db.Text
   precio       Decimal  @db.Decimal(10, 2)
