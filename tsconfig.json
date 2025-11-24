@@ -26,5 +26,6 @@
     "skipLibCheck": true,
     "esModuleInterop": true, // Importante para las importaciones 'require'
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "include": ["src", "src/types"]
 }

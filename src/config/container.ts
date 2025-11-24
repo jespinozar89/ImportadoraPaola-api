@@ -13,6 +13,11 @@ import { PrismaProductoRepository } from "../repositories/producto.repository";
 import { ProductoService } from "../services/producto.service";
 import { ProductoController } from "../controllers/producto.controller";
 
+// Módulo de Pedidos
+import { PrismaPedidoRepository } from "../repositories/pedido.repository";
+import { PedidoService } from "../services/pedido.service";
+import { PedidoController } from "../controllers/pedido.controller";
+
 // --- Auth Module Instances ---
 const usuarioRepository = new PrismaUsuarioRepository();
 const authService = new AuthService(usuarioRepository);
@@ -28,8 +33,14 @@ const productoRepository = new PrismaProductoRepository();
 const productoService = new ProductoService(productoRepository);
 const productoController = new ProductoController(productoService);
 
+// --- Pedido Module ---
+const pedidoRepository = new PrismaPedidoRepository();
+const pedidoService = new PedidoService(pedidoRepository);
+const pedidoController = new PedidoController(pedidoService);
+
 export { 
     authController, 
     categoriaController,
-    productoController 
+    productoController,
+    pedidoController
 };

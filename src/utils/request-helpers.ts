@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 export class RequestHelpers {
+    
   static getIdParam(req: Request, res: Response): number | null {
     const idParam = req.params.id;
 
