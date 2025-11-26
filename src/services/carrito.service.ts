@@ -13,8 +13,6 @@ export class CarritoService {
     const producto = await prisma.producto.findUnique({ where: { producto_id } });
     if (!producto) throw new Error("Producto no encontrado.");
     
-    if (cantidad <= 0) throw new Error("La cantidad debe ser positiva.");
-    if (producto.stock < cantidad) throw new Error(`Stock insuficiente. Solo quedan ${producto.stock} unidades.`);
 
     const itemExistente = await this.carritoRepository.findByUserAndProduct(usuarioId, producto_id);
 
@@ -36,9 +34,6 @@ export class CarritoService {
     const item = await prisma.carrito.findUnique({ where: { carrito_id: carritoId } });
     if (!item || item.usuario_id !== usuarioId) throw new Error("Item no encontrado o no pertenece al usuario.");
     
-    const producto = await prisma.producto.findUnique({ where: { producto_id: item.producto_id } });
-    if (producto && producto.stock < data.cantidad) throw new Error(`Stock insuficiente. Límite: ${producto.stock} unidades.`);
-
     return await this.carritoRepository.updateQuantity(carritoId, data.cantidad);
   }
 
