@@ -4,6 +4,5 @@ export interface DetallePedidoDTO {
 }
 
 export interface CreatePedidoDTO {
-  // El usuario_id lo obtendremos del Token, no del body
   items: DetallePedidoDTO[]; 
 }

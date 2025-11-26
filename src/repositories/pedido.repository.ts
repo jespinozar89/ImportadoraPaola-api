@@ -5,16 +5,13 @@ const prisma = new PrismaClient();
 
 export class PrismaPedidoRepository implements IPedidoRepository {
   
-  // ⚠️ MÉTODO TRANSACCIONAL: Crea pedido, detalles
   async createTransaction(data: PedidoData): Promise<Pedido> {
     return await prisma.$transaction(async (tx) => {
-      // 1. Crear el Pedido Encabezado
       const nuevoPedido = await tx.pedido.create({
         data: {
           usuario_id: data.usuario_id,
           total: data.total,
           estado: 'Pendiente',
-          // 2. Crear los Detalles (ProductosPedido) anidados
           detalles: {
             create: data.detalles.map(item => ({
               producto_id: item.producto_id,
@@ -23,7 +20,7 @@ export class PrismaPedidoRepository implements IPedidoRepository {
             }))
           }
         },
-        include: { detalles: true } // Para devolver el pedido completo
+        include: { detalles: true }
       });
 
       return nuevoPedido;
@@ -33,8 +30,8 @@ export class PrismaPedidoRepository implements IPedidoRepository {
   async findAll(): Promise<Pedido[]> {
     return await prisma.pedido.findMany({
       include: { 
-        usuario: { select: { nombres: true, email: true } }, // Incluir datos del usuario
-        detalles: true // Incluir los productos del pedido
+        usuario: { select: { nombres: true, email: true } },
+        detalles: true
       },
       orderBy: { fecha_pedido: 'desc' }
     });

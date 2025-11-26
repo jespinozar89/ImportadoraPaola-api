@@ -42,6 +42,8 @@ model Usuario {
   
   // Relaciones
   pedidos        Pedido[]
+  favoritos      Favorito[]
+  carrito        Carrito[]  
 
   @@map("Usuarios") // Nombre real de la tabla en BD
 }
@@ -60,6 +62,7 @@ model Categoria {
 
 model Producto {
   producto_id  Int      @id @default(autoincrement())
+  producto_codigo String? @db.VarChar(250)
   imagen       String?  @db.MediumText
   nombre       String   @db.VarChar(150)
   descripcion  String?  @db.Text
@@ -70,6 +73,8 @@ model Producto {
   // Relaciones
   categoria    Categoria? @relation(fields: [categoria_id], references: [categoria_id])
   detalles     ProductoPedido[]
+  favoritos       Favorito[]  
+  carrito         Carrito[]   
 
   @@map("Productos")
 }
@@ -102,3 +107,29 @@ model ProductoPedido {
   @@id([pedido_id, producto_id])
   @@map("ProductosPedido")
 }
+
+model Favorito {
+  favorito_id    Int       @id @default(autoincrement())
+  usuario_id     Int
+  producto_id    Int
+  fecha_agregado DateTime @default(now())
+
+  usuario        Usuario   @relation(fields: [usuario_id], references: [usuario_id], onDelete: Cascade)
+  producto       Producto  @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
+
+  @@unique([usuario_id, producto_id])
+}
+
+model Carrito {
+  carrito_id     Int       @id @default(autoincrement())
+  usuario_id     Int
+  producto_id    Int
+  cantidad       Int       @default(1)
+  fecha_agregado DateTime @default(now())
+
+  usuario        Usuario   @relation(fields: [usuario_id], references: [usuario_id], onDelete: Cascade)
+  producto       Producto  @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
+
+  @@unique([usuario_id, producto_id])
+}
+

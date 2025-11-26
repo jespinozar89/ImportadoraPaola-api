@@ -11,7 +11,6 @@ export class PrismaProductoRepository implements IProductoRepository {
 
   async findAll(): Promise<Producto[]> {
     return await prisma.producto.findMany({
-      // Incluimos la categoría para que el frontend pueda mostrar el nombre
       include: {
         categoria: true, 
       }
@@ -22,12 +21,17 @@ export class PrismaProductoRepository implements IProductoRepository {
     return await prisma.producto.findUnique({ where: { producto_id: id } });
   }
 
+  async findByCodigo(codigo: string): Promise<Producto | null> {
+    return await prisma.producto.findFirst({
+      where: { producto_codigo: codigo }
+    });
+  }
+
   async update(id: number, data: Prisma.ProductoUpdateInput): Promise<Producto> {
     return await prisma.producto.update({ where: { producto_id: id }, data });
   }
 
   async delete(id: number): Promise<Producto> {
-    // Eliminación física del registro
     return await prisma.producto.delete({ where: { producto_id: id } });
   }
 }

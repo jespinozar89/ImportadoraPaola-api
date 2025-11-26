@@ -5,6 +5,5 @@ export interface ICategoriaRepository {
   findAll(): Promise<Categoria[]>;
   findById(id: number): Promise<Categoria | null>;
   update(id: number, data: Prisma.CategoriaUpdateInput): Promise<Categoria>;
-  // Usaremos delete para hacer un "soft delete" (cambiar estado a Inactivo)
   delete(id: number): Promise<Categoria>; 
 }

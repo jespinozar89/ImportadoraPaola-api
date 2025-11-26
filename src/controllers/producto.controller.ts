@@ -9,7 +9,6 @@ export class ProductoController {
     async create(req: AuthRequest, res: Response) {
         try {
             const producto = await this.productoService.create(req.body);
-            // El producto creado incluye la cadena Base64, pero el cliente la necesita.
             res.status(201).json(producto);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
@@ -19,8 +18,6 @@ export class ProductoController {
     async findAll(req: Request, res: Response) {
         try {
             const productos = await this.productoService.findAll();
-            // NOTA: Esta respuesta contendrá la(s) cadena(s) Base64 completa(s),
-            // lo cual puede hacer que la respuesta sea LENTA y GRANDE.
             res.status(200).json(productos);
         } catch (error: any) {
             res.status(500).json({ message: 'Error al obtener productos', error: error.message });
@@ -38,6 +35,20 @@ export class ProductoController {
             res.status(404).json({ message: error.message });
         }
     }
+
+async findByCodigo(req: Request, res: Response) {
+    try {
+        const { codigo } = req.params;
+        if (!codigo || typeof codigo !== 'string') {
+            res.status(400).json({ message: 'Código es requerido' });
+            return;
+        }
+        const producto = await this.productoService.findByCodigo(codigo);
+        res.status(200).json(producto);
+    } catch (error: any) {
+        res.status(404).json({ message: error.message });
+    }
+}
 
     async update(req: Request, res: Response) {
         try {

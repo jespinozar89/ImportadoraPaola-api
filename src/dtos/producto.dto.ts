@@ -1,9 +1,10 @@
 export interface CreateProductoDTO {
   nombre: string;
-  descripcion?: string;
+  descripcion: string;
   imagen?: string; 
   precio: number;
   stock: number;
+  producto_codigo?: string;
   categoria_id: number;
 }
 
@@ -13,5 +14,6 @@ export interface UpdateProductoDTO {
   imagen?: string;
   precio?: number;
   stock?: number;
+  producto_codigo: string;
   categoria_id?: number;
 }

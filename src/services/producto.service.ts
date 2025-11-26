@@ -6,18 +6,20 @@ export class ProductoService {
   constructor(private productoRepository: IProductoRepository) {}
 
   async create(data: CreateProductoDTO) {
-    // ⚠️ LÓGICA CLAVE DE BASE64:
-    // Aquí podrías añadir una validación para asegurar que la cadena 'imagen' 
-    // tenga el formato esperado (ej. tamaño máximo, prefijo 'data:image/jpeg;base64,').
+    if (data.producto_codigo) {
+      const existe = await this.productoRepository.findByCodigo(data.producto_codigo);
+      if (existe) {
+        throw new Error(`El código de producto '${data.producto_codigo}' ya está en uso.`);
+      }
+    }
 
-    // Convertimos el precio de number (del DTO) a Decimal (para Prisma/BD)
     const dataToCreate: Prisma.ProductoCreateInput = {
         ...data,
         precio: new Prisma.Decimal(data.precio),
+        producto_codigo: data.producto_codigo ?? '',
     };
 
-    const producto = await this.productoRepository.create(dataToCreate);
-    return producto;
+    return await this.productoRepository.create(dataToCreate);
   }
 
   async findAll() {
@@ -31,11 +33,27 @@ export class ProductoService {
     }
     return producto;
   }
+
+  async findByCodigo(codigo: string) {
+    const producto = await this.productoRepository.findByCodigo(codigo);
+    if (!producto) {
+      throw new Error(`Producto con código ${codigo} no encontrado.`);
+    }
+    return producto;
+  }
   
   async update(id: number, data: UpdateProductoDTO) {
-    await this.findById(id); // Verificamos existencia
+
+    if (data.producto_codigo) {
+       const existe = await this.productoRepository.findByCodigo(data.producto_codigo);
+       
+       if (existe && existe.producto_id !== id) {
+          throw new Error(`El código '${data.producto_codigo}' ya pertenece a otro producto.`);
+       }
+    }
+
+    await this.findById(id); 
     
-    // Construimos el objeto de actualización sin incluir propiedades undefined
     const { precio, ...rest } = data;
     const dataToUpdate: Prisma.ProductoUpdateInput = {
       ...rest,
@@ -46,7 +64,7 @@ export class ProductoService {
   }
 
   async delete(id: number) {
-    await this.findById(id); // Verificamos existencia
+    await this.findById(id);
     return await this.productoRepository.delete(id);
   }
 }

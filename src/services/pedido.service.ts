@@ -2,7 +2,6 @@ import { CreatePedidoDTO } from '../dtos/pedido.dto';
 import { IPedidoRepository } from '../interfaces/pedido.repository.interface';
 import { PrismaClient } from '@prisma/client';
 
-// Idealmente inyectaríamos IProductoRepository, pero usaremos Prisma directo para leer rápido aquí.
 const prisma = new PrismaClient(); 
 
 export class PedidoService {
@@ -16,9 +15,8 @@ export class PedidoService {
     let totalPedido = 0;
     const detallesProcesados = [];
 
-    // Validaciones Lógicas
     for (const item of data.items) {
-      // Buscar producto en BD para obtener precio y stock real
+
       const producto = await prisma.producto.findUnique({
         where: { producto_id: item.producto_id }
       });
@@ -27,8 +25,6 @@ export class PedidoService {
         throw new Error(`El producto con ID ${item.producto_id} no existe.`);
       }
 
-      // Calcular subtotal y acumular
-      // Convertimos Decimal a number para el cálculo
       const precio = Number(producto.precio); 
       totalPedido += precio * item.cantidad;
 
@@ -39,7 +35,6 @@ export class PedidoService {
       });
     }
 
-    // Llamar al repositorio para ejecutar la transacción
     return await this.pedidoRepository.createTransaction({
       usuario_id: userId,
       total: totalPedido,

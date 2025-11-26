@@ -4,7 +4,7 @@ import type { IUsuarioRepository } from "../interfaces/usuario.repository.interf
 import type { CreateUserDTO, LoginDTO } from "../dtos/usuario.dto";
 
 export class AuthService {
-  // Inyección de dependencias: El servicio NO crea el repo, lo recibe.
+
   constructor(private usuarioRepository: IUsuarioRepository) {}
 
   async register(data: CreateUserDTO) {
@@ -14,17 +14,15 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(data.password, salt);
 
-    // Preparamos datos para Prisma (excluyendo password plano)
     const nuevoUsuario = await this.usuarioRepository.create({
       nombres: data.nombres,
       apellidos: data.apellidos,
       email: data.email,
       telefono: data.telefono,
       password_hash: password_hash,
-      rol: 'cliente' // Default
+      rol: 'cliente'
     });
 
-    // Eliminamos password del objeto de retorno
     const { password_hash: _, ...usuarioSinPass } = nuevoUsuario;
     return usuarioSinPass;
   }
@@ -36,7 +34,6 @@ export class AuthService {
     const validPass = await bcrypt.compare(data.password, usuario.password_hash);
     if (!validPass) throw new Error("Credenciales inválidas");
 
-    // Generar JWT
     const token = jwt.sign(
       { id: usuario.usuario_id, rol: usuario.rol },
       process.env.JWT_SECRET || 'secreto',

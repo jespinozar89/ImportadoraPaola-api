@@ -40,6 +40,42 @@ router.get("/", productoController.findAll.bind(productoController));
  *         description: Producto no encontrado
  */
 router.get("/:id", productoController.findById.bind(productoController));
+/**
+ * @openapi
+ * /api/productos/codigo/{codigo}:
+ *   get:
+ *     summary: Obtener un producto por su código personalizado
+ *     tags:
+ *       - Productos
+ *     parameters:
+ *       - name: codigo
+ *         in: path
+ *         required: true
+ *         description: Código único del producto (ej. MOU-001)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Producto encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 producto_id:
+ *                   type: integer
+ *                 producto_codigo:
+ *                   type: string
+ *                 nombre:
+ *                   type: string
+ *                 precio:
+ *                   type: number
+ *                 stock:
+ *                   type: integer
+ *       '404':
+ *         description: Producto no encontrado con ese código
+ */
+router.get("/codigo/:codigo", productoController.findByCodigo.bind(productoController));
 
 // RUTAS PROTEGIDAS (Modificación - Solo Administrador)
 /**

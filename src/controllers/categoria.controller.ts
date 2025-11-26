@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { CategoriaService } from '../services/categoria.service';
-// Importamos la interfaz extendida del middleware para acceder a req.usuarioId/req.rol
-import { AuthRequest } from '../middlewares/auth.middleware.js'; 
+import { AuthRequest } from '../middlewares/auth.middleware'; 
 import { RequestHelpers } from '../utils/request-helpers';
 
 export class CategoriaController {
@@ -33,7 +32,7 @@ export class CategoriaController {
       const categoria = await this.categoriaService.findById(id);
       res.status(200).json(categoria);
     } catch (error: any) {
-      res.status(404).json({ message: error.message }); // Error 404 si el servicio lanza "no encontrada"
+      res.status(404).json({ message: error.message });
     }
   }
 

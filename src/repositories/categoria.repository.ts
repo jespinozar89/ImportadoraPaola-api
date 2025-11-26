@@ -1,5 +1,3 @@
-// src/repositories/categoria.repository.ts
-
 import { PrismaClient, Categoria, Prisma } from '@prisma/client';
 import { ICategoriaRepository } from '../interfaces/categoria.repository.interface';
 
@@ -12,7 +10,6 @@ export class PrismaCategoriaRepository implements ICategoriaRepository {
     }
 
     async findAll(): Promise<Categoria[]> {
-        // Solo mostramos las activas por defecto
         return await prisma.categoria.findMany();
     }
 
@@ -25,7 +22,6 @@ export class PrismaCategoriaRepository implements ICategoriaRepository {
     }
 
     async delete(id: number): Promise<Categoria> {
-        // Hard delete: eliminamos el registro de la BD
         return await prisma.categoria.delete({
             where: { categoria_id: id },
         });

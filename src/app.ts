@@ -6,6 +6,8 @@ import categoriaRoutes from "./routes/categoria.routes";
 import productoRoutes from "./routes/productos.routes";
 import pedidoRoutes from "./routes/pedido.routes";
 import { setupSwagger } from "./config/swagger";
+import favoritoRoutes from "./routes/favorito.routes";
+import carritoRoutes from "./routes/carrito.routes";
 
 dotenv.config();
 
@@ -21,6 +23,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/categorias", categoriaRoutes);
 app.use("/api/productos", productoRoutes);
 app.use("/api/pedidos", pedidoRoutes);
+app.use("/api/favoritos", favoritoRoutes);
+app.use("/api/carrito", carritoRoutes);
 
 const PORT = process.env.PORT || 3000;
 

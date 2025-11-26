@@ -1,4 +1,3 @@
-// tsconfig.json (Versión Optimizada y Compatible)
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
@@ -8,7 +7,7 @@
 
     // Environment Settings (Base para Node ESM)
     "module": "CommonJS",
-    "moduleResolution": "node", // Debe ser NodeNext
+    "moduleResolution": "node", 
     "target": "esnext",
     "types": ["node"],
 
@@ -24,7 +23,7 @@
     // Recommended Options
     "strict": true,
     "skipLibCheck": true,
-    "esModuleInterop": true, // Importante para las importaciones 'require'
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src", "src/types"]

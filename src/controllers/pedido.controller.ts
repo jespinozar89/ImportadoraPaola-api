@@ -8,7 +8,7 @@ export class PedidoController {
 
   async create(req: AuthRequest, res: Response) {
     try {
-      const userId = req.usuarioId; // ID viene del token
+      const userId = req.usuarioId;
       if (!userId) throw new Error("Usuario no identificado");
 
       const pedido = await this.pedidoService.create(userId, req.body);
@@ -20,8 +20,6 @@ export class PedidoController {
 
   async findAll(req: AuthRequest, res: Response) {
     try {
-      // Si es admin, ve todos. Si es cliente, ve solo los suyos.
-      // Por simplicidad aquí, haremos métodos separados o lógica condicional:
       const pedidos = await this.pedidoService.findAll();
       res.json(pedidos);
     } catch (error: any) {
