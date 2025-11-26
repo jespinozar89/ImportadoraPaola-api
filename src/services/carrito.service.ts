@@ -18,8 +18,6 @@ export class CarritoService {
 
     if (itemExistente) {
       const nuevaCantidad = itemExistente.cantidad + cantidad;
-      if (producto.stock < nuevaCantidad) throw new Error(`Stock insuficiente para agregar ${cantidad} unidades más. Límite: ${producto.stock}.`);
-
       return await this.carritoRepository.updateQuantity(itemExistente.carrito_id, nuevaCantidad);
     } else {
       return await this.carritoRepository.addItem(usuarioId, producto_id, cantidad);
