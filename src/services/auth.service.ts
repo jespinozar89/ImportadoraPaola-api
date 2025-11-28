@@ -40,6 +40,14 @@ export class AuthService {
       { expiresIn: '24h' }
     );
 
-    return { token, usuario: { id: usuario.usuario_id, email: usuario.email, rol: usuario.rol } };
+    return { 
+      token, 
+      usuario: { 
+        id: usuario.usuario_id, 
+        email: usuario.email, 
+        nombre: usuario.nombres,
+        apellido:usuario.apellidos, 
+        rol: usuario.rol } 
+    };
   }
 }
