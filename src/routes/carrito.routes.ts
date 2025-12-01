@@ -118,7 +118,23 @@ router.get("/", carritoController.getMyCart.bind(carritoController));
  *         description: No autorizado.
  */
 router.patch("/:carritoId", carritoController.updateQuantity.bind(carritoController));
-
+/**
+ * @openapi
+ * /api/carrito/clear:
+ *   delete:
+ *     summary: Vaciar todo el carrito
+ *     tags:
+ *       - Carrito
+ *     description: Elimina todos los ítems asociados al usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '204':
+ *         description: Carrito vaciado exitosamente.
+ *       '401':
+ *         description: No autorizado.
+ */
+router.delete("/clear", carritoController.clearCart.bind(carritoController));
 /**
  * @openapi
  * /api/carrito/{carritoId}:
@@ -153,5 +169,6 @@ router.patch("/:carritoId", carritoController.updateQuantity.bind(carritoControl
  *         description: No autorizado.
  */
 router.delete("/:carritoId", carritoController.removeItem.bind(carritoController));
+
 
 export default router;
