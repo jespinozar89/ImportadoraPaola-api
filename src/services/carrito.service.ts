@@ -49,4 +49,8 @@ export class CarritoService {
     async getMyCart(usuarioId: number) {
         return await this.carritoRepository.findAllByUserId(usuarioId);
     }
+
+    async getDetailedCart(usuarioId: number) {
+        return await this.carritoRepository.getDetailedCartByUserId(usuarioId);
+    }
 }

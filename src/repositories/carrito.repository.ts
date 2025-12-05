@@ -1,5 +1,6 @@
 import { PrismaClient, Carrito } from '@prisma/client';
 import { ICarritoRepository } from '../interfaces/carrito.repository.interface';
+import { CarritoDetalladoDTO } from '../dtos/carrito.dto';
 
 const prisma = new PrismaClient();
 
@@ -54,5 +55,34 @@ export class PrismaCarritoRepository implements ICarritoRepository {
       where: { usuario_id }
     });
     return count;
+  }
+
+  async getDetailedCartByUserId(usuarioId: number): Promise<CarritoDetalladoDTO[]> {
+    // 💡 Aquí se usa la función de JOIN de tu ORM/BD.
+    // Ejemplo de lo que se buscaría:
+    const detailedItems = await prisma.carrito.findMany({
+      where: { usuario_id: usuarioId },
+      select: {
+        carrito_id: true,
+        cantidad: true,
+        producto: {
+          select: {
+            producto_id: true,
+            nombre: true,
+            precio: true,
+            imagen: true,
+          }
+        }
+      }
+    });
+    
+    return detailedItems.map(item => ({
+      carrito_id: item.carrito_id,
+      cantidad: item.cantidad,
+      producto_id: item.producto.producto_id,
+      nombre: item.producto.nombre,
+      precio: Number(item.producto.precio), 
+      imagen: item.producto.imagen ?? ""   
+    }));
   }
 }

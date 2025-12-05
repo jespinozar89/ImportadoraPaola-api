@@ -83,6 +83,41 @@ router.post("/", carritoController.addItem.bind(carritoController));
  *         description: No autorizado.
  */
 router.get("/", carritoController.getMyCart.bind(carritoController));
+
+/**
+ * @openapi
+ * /api/carrito/detailed:
+ *   get:
+ *     summary: Obtener contenido detallado del carrito
+ *     tags:
+ *       - Carrito
+ *     description: Lista todos los ítems en el carrito del usuario autenticado con detalles del producto.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: Contenido detallado del carrito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   carrito_id:
+ *                     type: integer
+ *                   cantidad:
+ *                     type: integer
+ *                   producto_id:
+ *                     type: integer
+ *                   nombre:
+ *                     type: string
+ *                   precio:
+ *                     type: number
+ *       '401':
+ *         description: No autorizado.
+ */
+router.get("/detailed", carritoController.getDetailedCart.bind(carritoController));
 /**
  * @openapi
  * /api/carrito/{carritoId}:

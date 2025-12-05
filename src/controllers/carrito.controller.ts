@@ -76,6 +76,18 @@ export class CarritoController {
         }
     }
 
+    async getDetailedCart(req: AuthRequest, res: Response) {
+        try {
+            const usuarioId = req.usuarioId;
+            if (!usuarioId) return res.status(401).json({ message: "Usuario no autenticado" });
+
+            const detailedCart = await this.carritoService.getDetailedCart(usuarioId);
+            res.status(200).json(detailedCart);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+
     private getIdParam(req: Request, res: Response): number | null {
         const idParam = req.params.carritoId;
 
@@ -93,4 +105,6 @@ export class CarritoController {
 
         return id;
     }
+
+
 }
