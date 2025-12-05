@@ -5,7 +5,6 @@ import { Rol } from "@prisma/client";
 
 const router = Router();
 
-// TODAS las rutas de pedidos requieren estar logueado
 router.use(authenticateToken);
 
 /**

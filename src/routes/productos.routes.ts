@@ -1,5 +1,3 @@
-// src/routes/productos.routes.ts
-
 import { Router } from "express";
 import { productoController } from "../config/container"; 
 import { authenticateToken, authorizeRole } from "../middlewares/auth.middleware";

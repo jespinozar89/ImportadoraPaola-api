@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { categoriaController } from "../config/container"; 
-// Importamos el middleware (usando la extensión .js)
 import { authenticateToken, authorizeRole } from "../middlewares/auth.middleware";
 import { Rol } from "@prisma/client";
 

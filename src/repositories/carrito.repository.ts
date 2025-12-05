@@ -58,8 +58,6 @@ export class PrismaCarritoRepository implements ICarritoRepository {
   }
 
   async getDetailedCartByUserId(usuarioId: number): Promise<CarritoDetalladoDTO[]> {
-    // 💡 Aquí se usa la función de JOIN de tu ORM/BD.
-    // Ejemplo de lo que se buscaría:
     const detailedItems = await prisma.carrito.findMany({
       where: { usuario_id: usuarioId },
       select: {
