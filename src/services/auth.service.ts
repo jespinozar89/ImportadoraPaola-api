@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import type { IUsuarioRepository } from "../interfaces/usuario.repository.interface";
 import type { CreateUserDTO, LoginDTO } from "../dtos/usuario.dto";
 
@@ -34,7 +34,9 @@ export class AuthService {
     const validPass = await bcrypt.compare(data.password, usuario.password_hash);
     if (!validPass) throw new Error("Credenciales inválidas");
 
-    const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret: string = process.env.JWT_SECRET as string;
+    const tokenExpiresIn = process.env.TOKEN_EXPIRES_IN || '1h';
+
     if (!jwtSecret) {
       throw new Error('La clave secreta JWT no está configurada en las variables de entorno.');
     }
@@ -42,7 +44,7 @@ export class AuthService {
     const token = jwt.sign(
       { id: usuario.usuario_id, rol: usuario.rol },
       jwtSecret,
-      { expiresIn: '1m' }
+      { expiresIn: tokenExpiresIn } as SignOptions
     );
 
     return { 
@@ -50,8 +52,8 @@ export class AuthService {
       usuario: { 
         id: usuario.usuario_id, 
         email: usuario.email, 
-        nombre: usuario.nombres,
-        apellido:usuario.apellidos, 
+        nombres: usuario.nombres,
+        apellidos: usuario.apellidos, 
         rol: usuario.rol } 
     };
   }
