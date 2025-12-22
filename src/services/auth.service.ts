@@ -34,10 +34,15 @@ export class AuthService {
     const validPass = await bcrypt.compare(data.password, usuario.password_hash);
     if (!validPass) throw new Error("Credenciales inválidas");
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('La clave secreta JWT no está configurada en las variables de entorno.');
+    }
+
     const token = jwt.sign(
       { id: usuario.usuario_id, rol: usuario.rol },
-      process.env.JWT_SECRET || 'secreto',
-      { expiresIn: '24h' }
+      jwtSecret,
+      { expiresIn: '1m' }
     );
 
     return { 

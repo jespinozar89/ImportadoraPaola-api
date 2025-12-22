@@ -4,7 +4,11 @@
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
-
+    // absolute routes
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+    },
     // Environment Settings (Base para Node ESM)
     "module": "CommonJS",
     "moduleResolution": "node", 
