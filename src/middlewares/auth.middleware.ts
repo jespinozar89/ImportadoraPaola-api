@@ -7,7 +7,7 @@ export interface AuthRequest extends Request {
   rol?: Rol;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'mi_secreto_ultra_seguro_default'; 
+const JWT_SECRET = process.env.JWT_SECRET; 
 
 /**
  * Middleware para autenticar al usuario usando un token JWT.
@@ -20,7 +20,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     return res.status(401).json({ message: 'Token de acceso no proporcionado.' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
+  jwt.verify(token, JWT_SECRET!, (err, user) => {
     if (err) {
       return res.status(403).json({ message: 'Token de acceso inválido o expirado.' });
     }

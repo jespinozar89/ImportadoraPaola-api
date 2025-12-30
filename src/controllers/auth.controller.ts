@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
+import { AuthRequest } from "@/middlewares/auth.middleware";
 
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -20,5 +21,17 @@ export class AuthController {
     } catch (error: any) {
       res.status(401).json({ message: error.message });
     }
+  }
+
+    async getPerfil(req: AuthRequest, res: Response) { 
+    try { const usuario = await this.authService.obtenerPerfil(req.usuarioId!); 
+      if (!usuario) { 
+        return res.status(404).json({ message: "Usuario no encontrado" }); 
+      } 
+      
+      res.json(usuario); 
+    } catch (error) { 
+      res.status(500).json({ message: "Error al obtener el perfil" }); 
+    } 
   }
 }

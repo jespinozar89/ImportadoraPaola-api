@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authController } from "../config/container"; 
+import { authenticateToken } from "../middlewares/auth.middleware";
 
 const router = Router();
 
@@ -59,5 +60,39 @@ router.post("/register", authController.register.bind(authController));
  *         description: Credenciales inválidas
  */
 router.post("/login", authController.login.bind(authController));
+
+/**
+ * @openapi
+ * /api/auth/me:
+ *   get:
+ *     summary: Obtener perfil del usuario autenticado
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []   # Indica que requiere JWT en el header Authorization
+ *     responses:
+ *       200:
+ *         description: Perfil del usuario autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 usuario_id:
+ *                   type: integer
+ *                 nombres:
+ *                   type: string
+ *                 apellidos:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 rol:
+ *                   type: string
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *       403:
+ *         description: Permisos insuficientes
+ */
+router.get('/me', authenticateToken, authController.getPerfil.bind(authController));
 
 export default router;

@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import type { IUsuarioRepository } from "../interfaces/usuario.repository.interface";
-import type { CreateUserDTO, LoginDTO } from "../dtos/usuario.dto";
+import type { CreateUserDTO, LoginDTO, UsuarioPerfil } from "../dtos/usuario.dto";
 
 export class AuthService {
 
-  constructor(private usuarioRepository: IUsuarioRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) { }
 
   async register(data: CreateUserDTO) {
     const existe = await this.usuarioRepository.findByEmail(data.email);
@@ -47,14 +47,20 @@ export class AuthService {
       { expiresIn: tokenExpiresIn } as SignOptions
     );
 
-    return { 
-      token, 
-      usuario: { 
-        id: usuario.usuario_id, 
-        email: usuario.email, 
+    return {
+      token,
+      usuario: {
+        id: usuario.usuario_id,
+        email: usuario.email,
         nombres: usuario.nombres,
-        apellidos: usuario.apellidos, 
-        rol: usuario.rol } 
+        apellidos: usuario.apellidos,
+        rol: usuario.rol
+      }
     };
   }
+
+  async obtenerPerfil(id: number): Promise<UsuarioPerfil | null> { 
+    return this.usuarioRepository.findById(id); 
+  }
+
 }

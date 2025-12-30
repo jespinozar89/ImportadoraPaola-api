@@ -10,3 +10,11 @@ export interface LoginDTO {
   email: string;
   password: string;
 }
+
+export interface UsuarioPerfil {
+  usuario_id: number;
+  nombres: string;
+  apellidos: string;
+  email: string;
+  rol: string;
+}
