@@ -4,17 +4,22 @@ import { IProductoRepository } from '../interfaces/producto.repository.interface
 const prisma = new PrismaClient();
 
 export class PrismaProductoRepository implements IProductoRepository {
-    
+
   async create(data: Prisma.ProductoCreateInput): Promise<Producto> {
     return await prisma.producto.create({ data });
   }
 
   async findAll(): Promise<Producto[]> {
-    return await prisma.producto.findMany({
+    const productos = await prisma.producto.findMany({
       include: {
-        categoria: true, 
+        categoria: true,
       }
     });
+
+    return productos.map(prod => ({
+      ...prod,
+      categoria_nombre: prod.categoria?.nombre ?? ''
+    }));
   }
 
   async findById(id: number): Promise<Producto | null> {

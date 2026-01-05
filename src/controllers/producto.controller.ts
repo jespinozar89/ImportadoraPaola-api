@@ -36,19 +36,19 @@ export class ProductoController {
         }
     }
 
-async findByCodigo(req: Request, res: Response) {
-    try {
-        const { codigo } = req.params;
-        if (!codigo || typeof codigo !== 'string') {
-            res.status(400).json({ message: 'Código es requerido' });
-            return;
+    async findByCodigo(req: Request, res: Response) {
+        try {
+            const { codigo } = req.params;
+            if (!codigo || typeof codigo !== 'string') {
+                res.status(400).json({ message: 'Código es requerido' });
+                return;
+            }
+            const producto = await this.productoService.findByCodigo(codigo);
+            res.status(200).json(producto);
+        } catch (error: any) {
+            res.status(404).json({ message: error.message });
         }
-        const producto = await this.productoService.findByCodigo(codigo);
-        res.status(200).json(producto);
-    } catch (error: any) {
-        res.status(404).json({ message: error.message });
     }
-}
 
     async update(req: Request, res: Response) {
         try {

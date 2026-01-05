@@ -20,26 +20,6 @@ const router = Router();
 router.get("/", productoController.findAll.bind(productoController));
 /**
  * @openapi
- * /api/productos/{id}:
- *   get:
- *     summary: Obtener un producto por ID
- *     tags:
- *       - Productos
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Producto encontrado
- *       404:
- *         description: Producto no encontrado
- */
-router.get("/:id", productoController.findById.bind(productoController));
-/**
- * @openapi
  * /api/productos/codigo/{codigo}:
  *   get:
  *     summary: Obtener un producto por su código personalizado
@@ -74,6 +54,27 @@ router.get("/:id", productoController.findById.bind(productoController));
  *         description: Producto no encontrado con ese código
  */
 router.get("/codigo/:codigo", productoController.findByCodigo.bind(productoController));
+/**
+ * @openapi
+ * /api/productos/{id}:
+ *   get:
+ *     summary: Obtener un producto por ID
+ *     tags:
+ *       - Productos
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Producto encontrado
+ *       404:
+ *         description: Producto no encontrado
+ */
+router.get("/:id", productoController.findById.bind(productoController));
+
 
 // RUTAS PROTEGIDAS (Modificación - Solo Administrador)
 /**
