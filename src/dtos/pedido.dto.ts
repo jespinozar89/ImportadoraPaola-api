@@ -1,8 +1,12 @@
+export interface CreatePedidoDTO {
+    usuario_id: number;
+    total: number;
+    comprobante_pago?: string | undefined; 
+    detalles: DetallePedidoDTO[]; 
+}
+
 export interface DetallePedidoDTO {
   producto_id: number;
   cantidad: number;
-}
-
-export interface CreatePedidoDTO {
-  items: DetallePedidoDTO[]; 
+  precio_unitario: number;
 }

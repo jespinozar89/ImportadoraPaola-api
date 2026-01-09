@@ -85,6 +85,7 @@ model Pedido {
   fecha_pedido DateTime     @default(now()) @db.Timestamp(0)
   estado       EstadoPedido @default(Pendiente)
   total        Decimal      @default(0) @db.Decimal(10, 2)
+  comprobante_pago       String?  @db.MediumText
 
   // Relaciones
   usuario      Usuario?     @relation(fields: [usuario_id], references: [usuario_id])

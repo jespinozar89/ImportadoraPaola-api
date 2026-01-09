@@ -1,35 +1,34 @@
 import { PrismaClient, Pedido, EstadoPedido } from '@prisma/client';
-import { IPedidoRepository, PedidoData } from '../interfaces/pedido.repository.interface';
+import { IPedidoRepository } from '../interfaces/pedido.repository.interface';
+import { CreatePedidoDTO } from '@/dtos/pedido.dto';
 
 const prisma = new PrismaClient();
 
 export class PrismaPedidoRepository implements IPedidoRepository {
-  
-  async createTransaction(data: PedidoData): Promise<Pedido> {
-    return await prisma.$transaction(async (tx) => {
-      const nuevoPedido = await tx.pedido.create({
-        data: {
-          usuario_id: data.usuario_id,
-          total: data.total,
-          estado: 'Pendiente',
-          detalles: {
-            create: data.detalles.map(item => ({
-              producto_id: item.producto_id,
-              cantidad: item.cantidad,
-              precio_unitario: item.precio_unitario
-            }))
-          }
-        },
-        include: { detalles: true }
-      });
 
-      return nuevoPedido;
+  async createTransaction(data: CreatePedidoDTO): Promise<Pedido> {
+    
+    return await prisma.pedido.create({
+      data: {
+        usuario_id: data.usuario_id,
+        fecha_pedido: new Date(),
+        estado: 'Pendiente',
+        total: data.total,
+        comprobante_pago: data.comprobante_pago ?? null,
+        detalles: {
+          create: data.detalles.map(d => ({
+            producto_id: d.producto_id,
+            cantidad: d.cantidad,
+            precio_unitario: d.precio_unitario
+          }))
+        }
+      }
     });
   }
 
   async findAll(): Promise<Pedido[]> {
     return await prisma.pedido.findMany({
-      include: { 
+      include: {
         usuario: { select: { nombres: true, email: true } },
         detalles: true
       },

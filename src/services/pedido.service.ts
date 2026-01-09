@@ -1,21 +1,21 @@
-import { CreatePedidoDTO } from '../dtos/pedido.dto';
+import { CreatePedidoDTO, DetallePedidoDTO } from '../dtos/pedido.dto';
 import { IPedidoRepository } from '../interfaces/pedido.repository.interface';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient(); 
+const prisma = new PrismaClient();
 
 export class PedidoService {
-  constructor(private pedidoRepository: IPedidoRepository) {}
+  constructor(private pedidoRepository: IPedidoRepository) { }
 
-  async create(userId: number, data: CreatePedidoDTO) {
-    if (!data.items || data.items.length === 0) {
+  async create(data: CreatePedidoDTO) {
+    if (!data.detalles || data.detalles.length === 0) {
       throw new Error("El pedido debe contener al menos un producto.");
     }
 
     let totalPedido = 0;
     const detallesProcesados = [];
 
-    for (const item of data.items) {
+    for (const item of data.detalles) {
 
       const producto = await prisma.producto.findUnique({
         where: { producto_id: item.producto_id }
@@ -25,7 +25,7 @@ export class PedidoService {
         throw new Error(`El producto con ID ${item.producto_id} no existe.`);
       }
 
-      const precio = Number(producto.precio); 
+      const precio = Number(producto.precio);
       totalPedido += precio * item.cantidad;
 
       detallesProcesados.push({
@@ -35,9 +35,12 @@ export class PedidoService {
       });
     }
 
+    totalPedido += 5000;
+
     return await this.pedidoRepository.createTransaction({
-      usuario_id: userId,
+      usuario_id: data.usuario_id,
       total: totalPedido,
+      comprobante_pago: data.comprobante_pago,
       detalles: detallesProcesados
     });
   }
@@ -49,10 +52,10 @@ export class PedidoService {
   async findByUserId(userId: number) {
     return await this.pedidoRepository.findByUserId(userId);
   }
-  
+
   async findById(id: number) {
-     const pedido = await this.pedidoRepository.findById(id);
-     if(!pedido) throw new Error("Pedido no encontrado");
-     return pedido;
+    const pedido = await this.pedidoRepository.findById(id);
+    if (!pedido) throw new Error("Pedido no encontrado");
+    return pedido;
   }
 }
