@@ -16,7 +16,8 @@ export class PedidoController {
       const pedidoData: CreatePedidoDTO = {
         usuario_id: userId,
         total: req.body.total,
-        detalles: req.body.detalles
+        detalles: req.body.detalles,
+        comprobante_pago: req.body.comprobante_pago
       };
 
       const pedido = await this.pedidoService.create(pedidoData);

@@ -29,7 +29,13 @@ export class PrismaPedidoRepository implements IPedidoRepository {
   async findAll(): Promise<Pedido[]> {
     return await prisma.pedido.findMany({
       include: {
-        usuario: { select: { nombres: true, email: true } },
+        usuario: { 
+          select: { 
+            nombres: true,
+            apellidos: true, 
+            email: true, 
+            telefono: true} 
+          },
         detalles: true
       },
       orderBy: { fecha_pedido: 'desc' }
