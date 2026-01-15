@@ -34,4 +34,16 @@ export class AuthController {
       res.status(500).json({ message: "Error al obtener el perfil" }); 
     } 
   }
+
+  async updatePerfil(req: AuthRequest, res: Response) {
+    try {
+      const usuarioId = req.usuarioId;
+      if (!usuarioId) throw new Error("Usuario no identificado");
+
+      const usuario = await this.authService.actualizarPerfil(usuarioId, req.body);
+      res.json(usuario);
+    }catch(error){
+      res.status(500).json({ message: "Error al actualizar el perfil" });
+    }
+  }
 }

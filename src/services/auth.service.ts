@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import type { IUsuarioRepository } from "../interfaces/usuario.repository.interface";
-import type { CreateUserDTO, LoginDTO, UsuarioPerfil } from "../dtos/usuario.dto";
+import type { CreateUserDTO, LoginDTO, UpdateUserDTO, UsuarioPerfil } from "../dtos/usuario.dto";
 
 export class AuthService {
 
@@ -59,8 +59,15 @@ export class AuthService {
     };
   }
 
-  async obtenerPerfil(id: number): Promise<UsuarioPerfil | null> { 
-    return this.usuarioRepository.findById(id); 
+  async obtenerPerfil(id: number): Promise<UsuarioPerfil | null> {
+    return this.usuarioRepository.findById(id);
   }
 
+  async actualizarPerfil(id: number, data: UpdateUserDTO): Promise<UsuarioPerfil | null> {
+    if (data.password) {
+      const salt = await bcrypt.genSalt(10);
+      data.password = await bcrypt.hash(data.password, salt);
+    }
+    return this.usuarioRepository.updateProfile(id, data);
+  }
 }

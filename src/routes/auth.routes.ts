@@ -63,6 +63,49 @@ router.post("/login", authController.login.bind(authController));
 
 /**
  * @openapi
+ * /api/auth/updatePerfil:
+ *   put:
+ *     summary: Actualizar el perfil del usuario autenticado
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombres:
+ *                 type: string
+ *                 example: string
+ *               apellidos:
+ *                 type: string
+ *                 example: string
+ *               email:
+ *                 type: string
+ *                 example: string
+ *               telefono:
+ *                 type: string
+ *                 example: string
+ *               password:
+ *                 type: string
+ *                 example: string
+ *     responses:
+ *       200:
+ *         description: Perfil actualizado correctamente
+ *       400:
+ *         description: Error de validación
+ *       401:
+ *         description: Usuario no autenticado
+ *       500:
+ *         description: Error interno al actualizar el perfil
+ */
+router.put('/updatePerfil', authenticateToken, authController.updatePerfil.bind(authController));
+
+/**
+ * @openapi
  * /api/auth/me:
  *   get:
  *     summary: Obtener perfil del usuario autenticado
