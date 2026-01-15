@@ -42,6 +42,46 @@ router.post("/", pedidoController.create.bind(pedidoController));
 
 /**
  * @openapi
+ * /api/pedidos/{id}:
+ *   put:
+ *     summary: Actualizar el estado de un pedido
+ *     tags:
+ *       - Pedidos
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID del pedido a actualizar
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - estado
+ *             properties:
+ *               estado:
+ *                 type: string
+ *                 enum: [Pendiente, EnPreparacion, Listo, Entregado, Cancelado]
+ *                 description: Nuevo estado del pedido
+ *     responses:
+ *       200:
+ *         description: Estado actualizado correctamente
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Pedido no encontrado
+ */
+router.put("/:id", authorizeRole([Rol.administrador]), pedidoController.updateStatus.bind(pedidoController));
+
+
+/**
+ * @openapi
  * /api/pedidos/mis-pedidos:
  *   get:
  *     summary: Obtener mis pedidos
@@ -76,7 +116,7 @@ router.get("/mis-pedidos", pedidoController.findMyOrders.bind(pedidoController))
  *       404:
  *         description: Pedido no encontrado
  */
-router.get("/:id", pedidoController.findById.bind(pedidoController));
+router.get("/:id", authorizeRole([Rol.administrador]), pedidoController.findById.bind(pedidoController));
 
 /**
  * @openapi
@@ -94,8 +134,8 @@ router.get("/:id", pedidoController.findById.bind(pedidoController));
  *         description: No autorizado
  */
 router.get(
-    "/", 
-    authorizeRole([Rol.administrador]), 
+    "/",
+    authorizeRole([Rol.administrador]),
     pedidoController.findAll.bind(pedidoController)
 );
 

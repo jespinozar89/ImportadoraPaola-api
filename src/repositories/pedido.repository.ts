@@ -53,7 +53,16 @@ export class PrismaPedidoRepository implements IPedidoRepository {
   async findById(id: number): Promise<Pedido | null> {
     return await prisma.pedido.findUnique({
       where: { pedido_id: id },
-      include: { detalles: { include: { producto: true } } }
+      include: { 
+        usuario: { 
+          select: { 
+            nombres: true,
+            apellidos: true, 
+            email: true, 
+            telefono: true} 
+          },
+        detalles: { include: { producto: true } }        
+      }
     });
   }
 

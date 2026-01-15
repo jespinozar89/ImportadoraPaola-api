@@ -22,9 +22,9 @@ enum EstadoCategoria {
 
 enum EstadoPedido {
   Pendiente
-  En_Preparacion @map("En Preparacion") // Mapeamos espacios para evitar errores
-  Listo_Retiro   @map("Listo para Retiro")
-  Retirado
+  EnPreparacion
+  Listo
+  Entregado
   Cancelado
 }
 

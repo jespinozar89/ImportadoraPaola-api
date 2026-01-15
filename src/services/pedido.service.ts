@@ -1,4 +1,4 @@
-import { CreatePedidoDTO, DetallePedidoDTO } from '../dtos/pedido.dto';
+import { CreatePedidoDTO, DetallePedidoDTO, EstadoPedido } from '../dtos/pedido.dto';
 import { IPedidoRepository } from '../interfaces/pedido.repository.interface';
 import { PrismaClient } from '@prisma/client';
 
@@ -57,5 +57,9 @@ export class PedidoService {
     const pedido = await this.pedidoRepository.findById(id);
     if (!pedido) throw new Error("Pedido no encontrado");
     return pedido;
+  }
+
+  async updateStatus(id: number, estado: EstadoPedido) {
+    return await this.pedidoRepository.updateStatus(id,estado);
   }
 }

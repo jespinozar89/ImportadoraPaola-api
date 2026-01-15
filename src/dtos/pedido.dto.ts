@@ -10,3 +10,16 @@ export interface DetallePedidoDTO {
   cantidad: number;
   precio_unitario: number;
 }
+
+export interface UpdatePedidoDTO {
+    usuario_id: number;
+    estado: EstadoPedido;
+}
+
+export enum EstadoPedido {
+  Pendiente = 'Pendiente',
+  EnPreparacion = 'EnPreparacion',
+  Listo = 'Listo',
+  Entregado = 'Entregado',
+  Cancelado = 'Cancelado'
+}

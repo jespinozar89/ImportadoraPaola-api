@@ -5,7 +5,7 @@ import { RequestHelpers } from '../utils/request-helpers';
 import { CreatePedidoDTO } from '@/dtos/pedido.dto';
 
 export class PedidoController {
-  constructor(private pedidoService: PedidoService) {}
+  constructor(private pedidoService: PedidoService) { }
 
   async create(req: AuthRequest, res: Response) {
     try {
@@ -38,24 +38,40 @@ export class PedidoController {
 
   async findMyOrders(req: AuthRequest, res: Response) {
     try {
-        const userId = req.usuarioId;
-        if (!userId) throw new Error("Usuario no identificado");
-        const pedidos = await this.pedidoService.findByUserId(userId);
-        res.json(pedidos);
+      const userId = req.usuarioId;
+      if (!userId) throw new Error("Usuario no identificado");
+      const pedidos = await this.pedidoService.findByUserId(userId);
+      res.json(pedidos);
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   }
-  
+
   async findById(req: AuthRequest, res: Response) {
-      try {
-          const id = RequestHelpers.getIdParam(req, res);
-          if (id === null) return;
-                      
-          const pedido = await this.pedidoService.findById(id);
-          res.json(pedido);
-      } catch (error: any) {
-          res.status(404).json({ message: error.message });
-      }
+    try {
+      const id = RequestHelpers.getIdParam(req, res);
+      if (id === null) return;
+
+      const pedido = await this.pedidoService.findById(id);
+      res.json(pedido);
+    } catch (error: any) {
+      res.status(404).json({ message: error.message });
+    }
+  }
+
+  async updateStatus(req: AuthRequest, res: Response) {
+    try {
+      const id = RequestHelpers.getIdParam(req, res);
+      if (id === null) return;
+
+      const { estado } = req.body;
+      if (!estado) throw new Error("Estado del pedido es requerido");
+
+      const pedido = await this.pedidoService.updateStatus(id, estado);
+      res.json(pedido);
+    }
+    catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
   }
 }
