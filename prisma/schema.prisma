@@ -34,7 +34,7 @@ model Usuario {
   usuario_id     Int      @id @default(autoincrement())
   nombres        String   @db.VarChar(100)
   apellidos      String   @db.VarChar(100)
-  telefono       String?  @db.VarChar(20)
+  telefono       String  @db.VarChar(20)
   email          String   @unique @db.VarChar(150)
   password_hash  String   @db.VarChar(255)
   rol            Rol      @default(cliente)

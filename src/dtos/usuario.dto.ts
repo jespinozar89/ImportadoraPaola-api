@@ -24,6 +24,7 @@ export interface UsuarioPerfil {
   usuario_id?: number;
   nombres: string;
   apellidos: string;
+  telefono: string;
   email: string;
   rol?: string;
 }

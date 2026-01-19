@@ -29,7 +29,7 @@ export class AuthService {
 
   async login(data: LoginDTO) {
     const usuario = await this.usuarioRepository.findByEmail(data.email);
-    if (!usuario) throw new Error("Credenciales inválidas");
+    if (!usuario) throw new Error("Correo no registrado");
 
     const validPass = await bcrypt.compare(data.password, usuario.password_hash);
     if (!validPass) throw new Error("Credenciales inválidas");
