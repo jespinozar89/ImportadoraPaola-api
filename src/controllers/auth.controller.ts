@@ -91,4 +91,45 @@ export class AuthController {
     }
 
   }
+
+  async generateResetToken(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ message: "El correo es requerido" });
+
+      const token = await this.authService.generateResetToken(email);
+
+      // llamar mi servicio de correo
+      console.log(`Enviar a ${email}: http://localhost:4200/reset-password?token=${token}`);
+
+      res.status(200).json({
+        message: "Se ha enviado un enlace de recuperación a su correo",
+        //debo borrar esto , cuando implemente el servicio correo
+        linkToken: `http://localhost:4200/resetPassword?token=${token}`
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: "Si el correo está registrado, recibirá un mensaje pronto." });
+    }
+  }
+
+  async resetPassword(req: Request, res: Response) {
+    try {
+
+      const { token, password } = req.body;
+
+      if (!token || !password) {
+        return res.status(400).json({ message: "Datos incompletos" });
+      }
+
+      await this.authService.resetPassword(token, password);
+      
+      res.status(200).json({
+        message: "Contraseña restablecida correctamente"
+      });
+
+    } catch (error: any) {
+      res.status(400).json({ message: 'Error al restablecer la contraseña' });
+    }
+  }
+
 }

@@ -1,6 +1,7 @@
 import { PrismaClient, type Usuario } from "@prisma/client";
 import type { IUsuarioRepository } from "../interfaces/usuario.repository.interface";
 import { UpdateUserDTO, UsuarioPerfil } from "@/dtos/usuario.dto";
+import { resetTokenDTO } from '../dtos/usuario.dto';
 
 const prisma = new PrismaClient();
 
@@ -28,6 +29,19 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
     });
   }
 
+  async findByToken(token: string): Promise<UsuarioPerfil | null> {
+    return await prisma.usuario.findUnique({
+      where: { reset_token: token},
+      select: {
+        usuario_id: true,
+        nombres: true,
+        apellidos: true,
+        telefono: true,
+        email: true,
+        reset_token_expiry: true,
+      }
+    });
+  }
 
   async updateProfile(userId: number, data: UpdateUserDTO): Promise<UsuarioPerfil | null> {
 
@@ -37,7 +51,9 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
         ...(data.nombres && { nombres: data.nombres }),
         ...(data.apellidos && { apellidos: data.apellidos }),
         ...(data.telefono && { telefono: data.telefono }),
-        ...(data.password && { password_hash: data.password })
+        ...(data.password && { password_hash: data.password }),
+        reset_token: null,
+        reset_token_expiry: null
       },
       select: {
         nombres: true,
@@ -47,5 +63,20 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
       }
     });
   }
+
+  async generateResetToken(resetToken: resetTokenDTO): Promise<string> {
+    return await prisma.usuario.update({
+      where: { email: resetToken.email },
+      data: {
+        reset_token: resetToken.token,
+        reset_token_expiry: resetToken.tokenExpiry
+      },
+      select: {
+        reset_token: true
+      }
+    }).then(result => result.reset_token || '');
+
+  }
+
 
 }

@@ -106,6 +106,71 @@ router.put('/updatePerfil', authenticateToken, authController.updatePerfil.bind(
 
 /**
  * @openapi
+ * /api/auth/generateResetToken:
+ *   put:
+ *     summary: Generar y actualizar token de restablecimiento de contraseña
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: usuario@dominio.com
+ *     responses:
+ *       200:
+ *         description: Token actualizado y enlace de recuperación enviado correctamente
+ *       400:
+ *         description: Error en la solicitud (correo faltante o no registrado)
+ *       500:
+ *         description: Error interno al generar el token de recuperación
+ */
+router.put('/generateResetToken', authController.generateResetToken.bind(authController));
+
+/**
+ * @openapi
+ * /api/auth/resetPassword:
+ *   put:
+ *     summary: Restablecer la contraseña del usuario
+ *     description: |
+ *       Permite al usuario restablecer su contraseña utilizando un token de recuperación válido.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - password
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *               password:
+ *                 type: string
+ *                 example: NuevaPassword123!
+ *     responses:
+ *       200:
+ *         description: Contraseña restablecida correctamente
+ *       400:
+ *         description: Error en la solicitud (datos incompletos o token inválido)
+ *       500:
+ *         description: Error interno al restablecer la contraseña
+ */
+router.put('/resetPassword', authController.resetPassword.bind(authController));
+
+/**
+ * @openapi
  * /api/auth/me:
  *   get:
  *     summary: Obtener perfil del usuario autenticado

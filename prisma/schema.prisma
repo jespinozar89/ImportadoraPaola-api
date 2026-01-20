@@ -39,6 +39,8 @@ model Usuario {
   password_hash  String   @db.VarChar(255)
   rol            Rol      @default(cliente)
   fecha_registro DateTime @default(now()) @db.Timestamp(0)
+  reset_token       String?   @unique
+  reset_token_expiry DateTime?
   
   // Relaciones
   pedidos        Pedido[]

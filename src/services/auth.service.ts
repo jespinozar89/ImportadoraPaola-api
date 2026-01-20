@@ -1,7 +1,10 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import type { IUsuarioRepository } from "../interfaces/usuario.repository.interface";
 import type { CreateUserDTO, LoginDTO, UpdateUserDTO, UsuarioPerfil } from "../dtos/usuario.dto";
+import { resetTokenDTO } from '../dtos/usuario.dto';
+import { Usuario } from '@prisma/client';
 
 export class AuthService {
 
@@ -69,5 +72,45 @@ export class AuthService {
       data.password = await bcrypt.hash(data.password, salt);
     }
     return this.usuarioRepository.updateProfile(id, data);
+  }
+
+  async generateResetToken(email: string): Promise<string> {
+
+    let resetTokenDTO: resetTokenDTO;
+
+    const usuario = await this.usuarioRepository.findByEmail(email);
+    if (!usuario) {
+      throw new Error("Si el correo está registrado, recibirá un mensaje pronto.");
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+
+    const expiry = new Date();
+    expiry.setMinutes(expiry.getMinutes() + 15);
+
+    resetTokenDTO = {
+      email: email,
+      token: token,
+      tokenExpiry: expiry
+    };
+
+    return await this.usuarioRepository.generateResetToken(resetTokenDTO);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<UsuarioPerfil | null> {
+    const usuario = await this.usuarioRepository.findByToken(token);
+
+    if (!usuario) {
+      throw new Error("El enlace de recuperación no es válido.");
+    }
+
+    if (usuario.reset_token_expiry && newPassword && new Date() > usuario.reset_token_expiry) {
+      throw new Error("El enlace ha expirado. Por favor, solicita uno nuevo.");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
+
+    return await this.usuarioRepository.updateProfile(usuario.usuario_id!, { password: passwordHash });
   }
 }

@@ -15,6 +15,12 @@ export interface UpdateUserDTO {
   rol?: string;
 }
 
+export interface resetTokenDTO {
+  email: string;
+  token: string;
+  tokenExpiry: Date;
+}
+
 export interface LoginDTO {
   email: string;
   password: string;
@@ -27,4 +33,6 @@ export interface UsuarioPerfil {
   telefono: string;
   email: string;
   rol?: string;
+  reset_token?: string;
+  reset_token_expiry?: Date | null;
 }
