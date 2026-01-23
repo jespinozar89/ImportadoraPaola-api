@@ -97,6 +97,39 @@ router.get("/mis-pedidos", pedidoController.findMyOrders.bind(pedidoController))
 
 /**
  * @openapi
+ * /api/pedidos/mi-pedido/{id}:
+ *   get:
+ *     summary: Obtener pedido por usuario y ID
+ *     description: Devuelve un pedido específico del usuario autenticado, incluyendo sus detalles y productos.
+ *     tags:
+ *       - Pedidos   # Agrupa la ruta bajo la categoría "Pedidos"
+ *     security:
+ *       - bearerAuth: []   # Requiere autenticación JWT con rol cliente
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID del pedido
+ *         schema:
+ *           type: integer
+ *           example: 24
+ *     responses:
+ *       200:
+ *         description: Pedido encontrado exitosamente
+ *       401:
+ *         description: Usuario no autenticado o sin rol cliente
+ *       404:
+ *         description: Pedido no encontrado
+ */
+router.get(
+  "/mi-pedido/:id",
+  authorizeRole([Rol.cliente]),
+  pedidoController.findOrderByUserIdAndPedidoId.bind(pedidoController)
+);
+
+
+/**
+ * @openapi
  * /api/pedidos/{id}:
  *   get:
  *     summary: Obtener un pedido por ID

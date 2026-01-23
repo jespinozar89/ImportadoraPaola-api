@@ -53,6 +53,10 @@ export class PedidoService {
     return await this.pedidoRepository.findByUserId(userId);
   }
 
+  async findOrderByUserIdAndPedidoId(userId: number, pedidoId: number) {
+    return await this.pedidoRepository.findOrderByUserIdAndPedidoId(userId, pedidoId);
+  }
+
   async findById(id: number) {
     const pedido = await this.pedidoRepository.findById(id);
     if (!pedido) throw new Error("Pedido no encontrado");

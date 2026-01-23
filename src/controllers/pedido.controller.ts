@@ -47,6 +47,21 @@ export class PedidoController {
     }
   }
 
+  async findOrderByUserIdAndPedidoId(req: AuthRequest, res: Response) {
+    try {
+      const orderId = RequestHelpers.getIdParam(req, res);
+      const userId = req.usuarioId;
+
+      if (orderId === null) return;
+      if (!userId) throw new Error("Usuario no identificado");
+
+      const pedido = await this.pedidoService.findOrderByUserIdAndPedidoId(userId, orderId);
+      res.json(pedido);
+    } catch (error: any) {
+      res.status(404).json({ message: error.message });
+    }
+  }
+
   async findById(req: AuthRequest, res: Response) {
     try {
       const id = RequestHelpers.getIdParam(req, res);

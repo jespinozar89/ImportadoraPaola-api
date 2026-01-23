@@ -7,11 +7,12 @@ const prisma = new PrismaClient();
 export class PrismaPedidoRepository implements IPedidoRepository {
 
   async createTransaction(data: CreatePedidoDTO): Promise<Pedido> {
-    
+
     return await prisma.pedido.create({
       data: {
         usuario_id: data.usuario_id,
         fecha_pedido: new Date(),
+        fecha_cambio_estado: new Date(),
         estado: 'Pendiente',
         total: data.total,
         comprobante_pago: data.comprobante_pago ?? null,
@@ -29,13 +30,14 @@ export class PrismaPedidoRepository implements IPedidoRepository {
   async findAll(): Promise<Pedido[]> {
     return await prisma.pedido.findMany({
       include: {
-        usuario: { 
-          select: { 
+        usuario: {
+          select: {
             nombres: true,
-            apellidos: true, 
-            email: true, 
-            telefono: true} 
-          },
+            apellidos: true,
+            email: true,
+            telefono: true
+          }
+        },
         detalles: true
       },
       orderBy: { fecha_pedido: 'desc' }
@@ -45,23 +47,41 @@ export class PrismaPedidoRepository implements IPedidoRepository {
   async findByUserId(userId: number): Promise<Pedido[]> {
     return await prisma.pedido.findMany({
       where: { usuario_id: userId },
-      include: { detalles: true },
+      include: {
+        detalles:
+          { include: { producto: true } }
+      },
       orderBy: { fecha_pedido: 'desc' }
+    });
+  }
+
+  async findOrderByUserIdAndPedidoId(userId: number, pedidoId: number): Promise<Pedido | null> {
+    return await prisma.pedido.findFirst({
+      where: {
+        usuario_id: userId,
+        pedido_id: pedidoId
+      },
+      include: {
+        detalles: {
+          include: { producto: true }
+        }
+      }
     });
   }
 
   async findById(id: number): Promise<Pedido | null> {
     return await prisma.pedido.findUnique({
       where: { pedido_id: id },
-      include: { 
-        usuario: { 
-          select: { 
+      include: {
+        usuario: {
+          select: {
             nombres: true,
-            apellidos: true, 
-            email: true, 
-            telefono: true} 
-          },
-        detalles: { include: { producto: true } }        
+            apellidos: true,
+            email: true,
+            telefono: true
+          }
+        },
+        detalles: { include: { producto: true } }
       }
     });
   }
@@ -69,7 +89,10 @@ export class PrismaPedidoRepository implements IPedidoRepository {
   async updateStatus(id: number, estado: EstadoPedido): Promise<Pedido> {
     return await prisma.pedido.update({
       where: { pedido_id: id },
-      data: { estado }
+      data: { 
+        estado: estado, 
+        fecha_cambio_estado: new Date() 
+       }
     });
   }
 }
