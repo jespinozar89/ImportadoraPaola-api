@@ -35,8 +35,6 @@ export class PedidoService {
       });
     }
 
-    totalPedido += 5000;
-
     return await this.pedidoRepository.createTransaction({
       usuario_id: data.usuario_id,
       total: totalPedido,
