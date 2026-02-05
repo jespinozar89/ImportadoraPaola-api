@@ -1,5 +1,6 @@
 import { PrismaClient, Producto, Prisma } from '@prisma/client';
 import { IProductoRepository } from '../interfaces/producto.repository.interface';
+import { CreateProductoDTO } from '@/dtos/producto.dto';
 
 const prisma = new PrismaClient();
 
@@ -18,7 +19,8 @@ export class PrismaProductoRepository implements IProductoRepository {
 
     return productos.map(prod => ({
       ...prod,
-      categoria_nombre: prod.categoria?.nombre ?? ''
+      categoria_nombre: prod.categoria?.nombre ?? '',
+      estado: prod.categoria?.estado ?? ''
     }));
   }
 
@@ -39,4 +41,14 @@ export class PrismaProductoRepository implements IProductoRepository {
   async delete(id: number): Promise<Producto> {
     return await prisma.producto.delete({ where: { producto_id: id } });
   }
+
+  async createBulk(productos: CreateProductoDTO[]): Promise<number> {
+    const result = await prisma.producto.createMany({
+      data: productos,
+      skipDuplicates: true
+    });
+
+    return result.count;
+  }
+
 }

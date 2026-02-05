@@ -1,3 +1,4 @@
+import { CreateProductoDTO } from '@/dtos/producto.dto';
 import { Producto, Prisma } from '@prisma/client';
 
 export interface IProductoRepository {
@@ -7,4 +8,5 @@ export interface IProductoRepository {
   findByCodigo(codigo: string): Promise<Producto | null>;
   update(id: number, data: Prisma.ProductoUpdateInput): Promise<Producto>;
   delete(id: number): Promise<Producto>;
+  createBulk(productos: CreateProductoDTO[]): Promise<number>
 }

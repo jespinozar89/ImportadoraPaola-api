@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ProductoService } from '../services/producto.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { RequestHelpers } from '../utils/request-helpers';
+import 'multer';
 
 export class ProductoController {
     constructor(private productoService: ProductoService) { }
@@ -73,5 +74,32 @@ export class ProductoController {
             res.status(404).json({ message: error.message });
         }
     }
+
+    async uploadCsv(req: Request, res: Response) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ 
+          status: 'error',
+          message: 'Debe subir un archivo CSV válido en el campo "file".' 
+        });
+      }
+
+      const resultado = await this.productoService.procesarCargaMasiva(req.file.buffer);
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Proceso de carga masiva finalizado.',
+        data: resultado
+      });
+
+    } catch (error: any) {
+      console.error('Error en carga masiva:', error);
+      return res.status(500).json({ 
+        status: 'error',
+        message: 'Ocurrió un error al procesar el archivo.',
+        details: error.message 
+      });
+    }
+  }
 
 }
