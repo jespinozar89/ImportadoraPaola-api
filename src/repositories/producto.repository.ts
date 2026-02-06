@@ -1,6 +1,6 @@
-import { PrismaClient, Producto, Prisma } from '@prisma/client';
+import { PrismaClient, Producto, Prisma, Categoria } from '@prisma/client';
 import { IProductoRepository } from '../interfaces/producto.repository.interface';
-import { CreateProductoDTO } from '@/dtos/producto.dto';
+import { CreateProductoDTO, PaginatedResult } from '@/dtos/producto.dto';
 
 const prisma = new PrismaClient();
 
@@ -10,18 +10,45 @@ export class PrismaProductoRepository implements IProductoRepository {
     return await prisma.producto.create({ data });
   }
 
-  async findAll(): Promise<Producto[]> {
-    const productos = await prisma.producto.findMany({
-      include: {
-        categoria: true,
-      }
-    });
+  async findAll(page: number, limit: number, filtros: any): Promise<PaginatedResult<Producto>> {
+    const skip = (page - 1) * limit;
 
-    return productos.map(prod => ({
-      ...prod,
-      categoria_nombre: prod.categoria?.nombre ?? '',
-      estado: prod.categoria?.estado ?? ''
-    }));
+    let where: any = {};
+
+    if (filtros.estado && filtros.estado !== 'todos') {
+      where.categoria = { estado: filtros.estado };
+    }
+
+    if (filtros.categoria_id) {
+      where.categoria_id = Number(filtros.categoria_id);
+    }
+
+    if (filtros.search) {
+      where.OR = [
+        { nombre: { contains: filtros.search} },
+        { producto_codigo: { contains: filtros.search} }
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.producto.findMany({
+        where: where,
+        skip: skip,
+        take: limit,
+        orderBy: { producto_id: 'desc' },
+        include: { categoria: true }
+      }),
+      prisma.producto.count({ where })
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        last_page: Math.ceil(total / limit)
+      }
+    };
   }
 
   async findById(id: number): Promise<Producto | null> {
@@ -44,7 +71,15 @@ export class PrismaProductoRepository implements IProductoRepository {
 
   async createBulk(productos: CreateProductoDTO[]): Promise<number> {
     const result = await prisma.producto.createMany({
-      data: productos,
+      data: productos.map(p => ({
+        nombre: p.nombre,
+        descripcion: p.descripcion ?? null,
+        imagen: p.imagen ?? null,
+        precio: new Prisma.Decimal(p.precio),
+        stock: p.stock,
+        producto_codigo: p.producto_codigo ?? '',
+        categoria_id: p.categoria_id
+      })),
       skipDuplicates: true
     });
 

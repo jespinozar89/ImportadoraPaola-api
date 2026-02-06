@@ -1,11 +1,16 @@
 import type { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
+import { CorreoService } from "../services/correo.service";
 import { AuthRequest } from "@/middlewares/auth.middleware";
 import { LoginDTO, UpdateUserDTO } from '../dtos/usuario.dto';
 import e from "express";
 
 export class AuthController {
-  constructor(private authService: AuthService) { }
+
+  constructor(
+    private authService: AuthService,
+    private correoService: CorreoService
+  ) { }
 
   async register(req: Request, res: Response) {
     try {
@@ -64,10 +69,11 @@ export class AuthController {
       }
 
       if (usuario) {
-        res.status(200).json(usuario);
+        this.correoService.enviarNotificacionUpdateDatos(usuario.email, usuario.nombres);
+        return res.status(200).json(usuario);
       }
       else {
-        res.status(404).json(null);
+        return res.status(404).json(null);
       }
 
     } catch (error: any) {
@@ -87,7 +93,7 @@ export class AuthController {
       }
 
       console.error("Error en updatePerfil:", error);
-      res.status(status).json({ message: msg });
+      return res.status(status).json({ message: msg });
     }
 
   }
@@ -98,14 +104,22 @@ export class AuthController {
       if (!email) return res.status(400).json({ message: "El correo es requerido" });
 
       const token = await this.authService.generateResetToken(email);
+      const usuario = await this.authService.findByEmail(email);
 
-      // llamar mi servicio de correo
-      console.log(`Enviar a ${email}: http://localhost:4200/reset-password?token=${token}`);
+      if (!usuario) {
+        return res.status(404).json({
+          message: "Si el correo está registrado, recibirá un mensaje pronto."
+        });
+      }
+
+      this.correoService.enviarResetPassword(
+        email,
+        usuario.nombres,
+        `http://localhost:4200/resetPassword?token=${token}`
+      );
 
       res.status(200).json({
-        message: "Se ha enviado un enlace de recuperación a su correo",
-        //debo borrar esto , cuando implemente el servicio correo
-        linkToken: `http://localhost:4200/resetPassword?token=${token}`
+        message: "Se ha enviado un enlace de recuperación a su correo"
       });
     } catch (error: any) {
       res.status(400).json({ message: "Si el correo está registrado, recibirá un mensaje pronto." });
@@ -122,7 +136,7 @@ export class AuthController {
       }
 
       await this.authService.resetPassword(token, password);
-      
+
       res.status(200).json({
         message: "Contraseña restablecida correctamente"
       });

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ProductoService } from '../services/producto.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { RequestHelpers } from '../utils/request-helpers';
+import { Rol } from "@prisma/client";
 import 'multer';
 
 export class ProductoController {
@@ -16,9 +17,22 @@ export class ProductoController {
         }
     }
 
-    async findAll(req: Request, res: Response) {
+    async findAll(req: AuthRequest, res: Response) {
         try {
-            const productos = await this.productoService.findAll();
+            const page = Number(req.query.page) || 1;
+            const limit = Number(req.query.limit) || 10;
+
+            const filtros = {
+                estado: req.query.estado,
+                categoria_id: req.query.categoria_id,
+                search: req.query.search
+            };
+
+            if (!req.rol || req.rol !== Rol.administrador) { 
+                filtros.estado = "Activo"; 
+            } 
+
+            const productos = await this.productoService.findAll(page, limit, filtros);
             res.status(200).json(productos);
         } catch (error: any) {
             res.status(500).json({ message: 'Error al obtener productos', error: error.message });
@@ -76,30 +90,30 @@ export class ProductoController {
     }
 
     async uploadCsv(req: Request, res: Response) {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ 
-          status: 'error',
-          message: 'Debe subir un archivo CSV válido en el campo "file".' 
-        });
-      }
+        try {
+            if (!req.file) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Debe subir un archivo CSV válido en el campo "file".'
+                });
+            }
 
-      const resultado = await this.productoService.procesarCargaMasiva(req.file.buffer);
+            const resultado = await this.productoService.procesarCargaMasiva(req.file.buffer);
 
-      return res.status(200).json({
-        status: 'success',
-        message: 'Proceso de carga masiva finalizado.',
-        data: resultado
-      });
+            return res.status(200).json({
+                status: 'success',
+                message: 'Proceso de carga masiva finalizado.',
+                data: resultado
+            });
 
-    } catch (error: any) {
-      console.error('Error en carga masiva:', error);
-      return res.status(500).json({ 
-        status: 'error',
-        message: 'Ocurrió un error al procesar el archivo.',
-        details: error.message 
-      });
+        } catch (error: any) {
+            console.error('Error en carga masiva:', error);
+            return res.status(500).json({
+                status: 'error',
+                message: 'Ocurrió un error al procesar el archivo.',
+                details: error.message
+            });
+        }
     }
-  }
 
 }

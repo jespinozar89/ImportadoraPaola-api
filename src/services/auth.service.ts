@@ -113,4 +113,9 @@ export class AuthService {
 
     return await this.usuarioRepository.updateProfile(usuario.usuario_id!, { password: passwordHash });
   }
+
+  async findByEmail(email: string): Promise<Usuario | null> {
+    return this.usuarioRepository.findByEmail(email);
+  }
+
 }

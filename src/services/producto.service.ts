@@ -25,8 +25,8 @@ export class ProductoService {
     return await this.productoRepository.create(dataToCreate);
   }
 
-  async findAll() {
-    return await this.productoRepository.findAll();
+  async findAll(page: number, limit: number, filtros: any) {
+    return await this.productoRepository.findAll(page, limit, filtros);
   }
 
   async findById(id: number) {

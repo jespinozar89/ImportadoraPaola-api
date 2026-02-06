@@ -17,3 +17,12 @@ export interface UpdateProductoDTO {
   producto_codigo: string;
   categoria_id?: number;
 }
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    last_page: number;
+  };
+}

@@ -1,24 +1,59 @@
 import { Router } from "express";
 import { productoController } from "../config/container";
-import { authenticateToken, authorizeRole } from "../middlewares/auth.middleware";
+import { authenticateToken, authorizeRole, optionalAuth } from "../middlewares/auth.middleware";
 import { uploadCsv } from "../middlewares/multer.middleware";
 import { Rol } from "@prisma/client";
 
 const router = Router();
 
 // RUTAS PÚBLICAS (Lectura)
+
 /**
  * @openapi
  * /api/productos:
  *   get:
  *     summary: Obtener todos los productos
+ *     description: Retorna una lista paginada de productos aplicando filtros enviados en el body.
  *     tags:
  *       - Productos
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               page:
+ *                 type: integer
+ *                 default: 1
+ *                 description: Número de página para la paginación.
+ *               limit:
+ *                 type: integer
+ *                 default: 10
+ *                 description: Cantidad de productos por página.
+ *               estado:
+ *                 type: string
+ *                 enum: [Activo, Inactivo]
+ *                 description: Filtrar productos por estado de la categoría.
+ *               categoria_id:
+ *                 type: integer
+ *                 description: Filtrar productos por ID de categoría.
+ *               search:
+ *                 type: string
+ *                 description: Texto de búsqueda en nombre o descripción del producto.
+ *             example:
+ *               page: 1
+ *               limit: 10
+ *               estado: "Activo"
+ *               categoria_id: 3
+ *               search: "Laptop"
  *     responses:
  *       200:
- *         description: Lista de productos
+ *         description: Lista de productos obtenida exitosamente.
+ *       500:
+ *         description: Error al obtener productos.
  */
-router.get("/", productoController.findAll.bind(productoController));
+router.get("/", optionalAuth, productoController.findAll.bind(productoController));
 /**
  * @openapi
  * /api/productos/codigo/{codigo}:

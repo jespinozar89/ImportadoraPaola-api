@@ -28,10 +28,16 @@ import { PrismaCarritoRepository } from "../repositories/carrito.repository";
 import { CarritoService } from "../services/carrito.service";
 import { CarritoController } from "../controllers/carrito.controller";
 
+//Correo
+import { CorreoService } from "../services/correo.service";
+
+// --- Correo Module Instances ---
+const correoService = new CorreoService();
+
 // --- Auth Module Instances ---
 const usuarioRepository = new PrismaUsuarioRepository();
 const authService = new AuthService(usuarioRepository);
-const authController = new AuthController(authService);
+const authController = new AuthController(authService,correoService);
 
 // --- Categoria Module Instances ---
 const categoriaRepository = new PrismaCategoriaRepository();
