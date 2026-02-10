@@ -118,4 +118,8 @@ export class AuthService {
     return this.usuarioRepository.findByEmail(email);
   }
 
+  async findById(id: number ): Promise<UsuarioPerfil | null> {
+    return this.usuarioRepository.findById(id);
+  }
+
 }

@@ -5,6 +5,8 @@ import { Rol } from '@prisma/client';
 export interface AuthRequest extends Request {
   usuarioId?: number;
   rol?: Rol;
+  email?: string;
+  nombre?: string;
 }
 
 const JWT_SECRET = process.env.JWT_SECRET; 
@@ -25,7 +27,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
       return res.status(403).json({ message: 'Token de acceso inválido o expirado.' });
     }
 
-    const payload = user as { id: number, rol: Rol };
+    const payload = user as { id: number, rol: Rol, email: string, nombre: string };
     req.usuarioId = payload.id;
     req.rol = payload.rol;
 

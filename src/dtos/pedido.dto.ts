@@ -7,6 +7,7 @@ export interface CreatePedidoDTO {
 
 export interface DetallePedidoDTO {
   producto_id: number;
+  nombre?: string;
   cantidad: number;
   precio_unitario: number;
 }

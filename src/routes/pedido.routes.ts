@@ -42,6 +42,42 @@ router.post("/", pedidoController.create.bind(pedidoController));
 
 /**
  * @openapi
+ * /api/pedidos/correo-status:
+ *   post:
+ *     summary: Enviar correo de notificación de cambio de estado de pedido
+ *     tags:
+ *       - Pedidos
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: integer
+ *                 description: ID del pedido
+ *               estado:
+ *                 type: string
+ *                 description: Nuevo estado del pedido
+ *             required:
+ *               - id
+ *               - estado
+ *     responses:
+ *       200:
+ *         description: Correo enviado exitosamente
+ *       400:
+ *         description: Error de validación o datos faltantes
+ *       404:
+ *         description: Pedido o usuario no encontrado
+ */
+router.post("/correo-status", authorizeRole([Rol.administrador]), pedidoController.CorreoStatus.bind(pedidoController));
+
+
+/**
+ * @openapi
  * /api/pedidos/{id}:
  *   put:
  *     summary: Actualizar el estado de un pedido
@@ -78,7 +114,6 @@ router.post("/", pedidoController.create.bind(pedidoController));
  *         description: Pedido no encontrado
  */
 router.put("/:id", authorizeRole([Rol.administrador]), pedidoController.updateStatus.bind(pedidoController));
-
 
 /**
  * @openapi

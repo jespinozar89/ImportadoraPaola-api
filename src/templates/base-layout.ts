@@ -1,4 +1,7 @@
-export const getBaseLayout = (content: string, title: string) => `
+export const getBaseLayout = (content: string, title: string) => {
+  const year = new Date().getFullYear();
+
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,9 +24,10 @@ export const getBaseLayout = (content: string, title: string) => `
       ${content}
     </div>
     <div class="footer">
-      <p>© 2026 Tu Sistema ERP - Todos los derechos reservados.</p>
+      <p>© ${year} Libreria Paola - Todos los derechos reservados.</p>
     </div>
   </div>
 </body>
 </html>
 `;
+};

@@ -5,6 +5,7 @@ import { getUpdateDatosTemplate } from '../templates/actualizacion-datos-persona
 import nodemailer from 'nodemailer';
 
 export class CorreoService {
+    // private ultimosEnvios: Map<string, number> = new Map();
     private transporter: nodemailer.Transporter;
 
     constructor() {
@@ -16,13 +17,20 @@ export class CorreoService {
         });
     }
 
-    // Método privado genérico para no repetir código de envío
     private async send(to: string, subject: string, html: string) {
+        // const ahora = Date.now();
+        // const ultimoEnvio = this.ultimosEnvios.get(to);
+
+        // if (ultimoEnvio && ahora - ultimoEnvio < 30000) {
+        //     throw new Error("No se puede reenviar correo al mismo destinatario dentro de 30 segundos.");
+        // }
+
         try {
             await this.transporter.sendMail({
-                from: `"Sistema ERP" <${process.env.SMTP_USER}>`,
+                from: `"Libreria Paola" <${process.env.SMTP_USER}>`,
                 to, subject, html
             });
+            // this.ultimosEnvios.set(to, ahora);
             return true;
         } catch (error) {
             console.error(`Error enviando email a ${to}:`, error);
@@ -33,7 +41,12 @@ export class CorreoService {
     // FLUJO 1: Confirmación de Pedido
     async enviarConfirmacionPedido(email: string, datos: any) {
         const html = getConfirmacionPedidoTemplate(datos);
-        return this.send(email, `Confirmación de Pedido #${datos.id_pedido}`, html);
+        const idPedido = `#ORD-${datos.id_pedido.toString().padStart(4, '0')}`
+        return this.send(
+            email,
+            `Confirmación de Pedido ${idPedido}`,
+            html
+        );
     }
 
     // FLUJO 2: Reset Password
@@ -42,7 +55,7 @@ export class CorreoService {
         return this.send(email, 'Restablecer tu contraseña', html);
     }
 
-    // FLUJO 3: Cambio de Estado (Pendiente, Entregado, etc.)
+    // FLUJO 3: Cambio de Estado (Listo, Entregado, etc.)
     async enviarCambioEstadoPedido(
         email: string,
         nombreCliente: string,
@@ -50,7 +63,12 @@ export class CorreoService {
         idPedido: string
     ) {
         const html = getEstadoPedidoTemplate(nombreCliente, nuevoEstado, idPedido);
-        return this.send(email, `Tu pedido #${idPedido} ha cambiado a: ${nuevoEstado}`, html);
+        const id_Pedido = `#ORD-${idPedido.toString().padStart(4, '0')}`;
+        return this.send(
+            email,
+            `Tu pedido ${id_Pedido} ha cambiado a: ${nuevoEstado}`,
+            html
+        );
     }
 
     // FLUJO 4: Actualización de Datos Personales

@@ -52,7 +52,7 @@ const productoController = new ProductoController(productoService);
 // --- Pedido Module ---
 const pedidoRepository = new PrismaPedidoRepository();
 const pedidoService = new PedidoService(pedidoRepository);
-const pedidoController = new PedidoController(pedidoService);
+const pedidoController = new PedidoController(pedidoService,authService, correoService);
 
 // --- Favorito Module ---
 const favoritoRepository = new PrismaFavoritoRepository();
