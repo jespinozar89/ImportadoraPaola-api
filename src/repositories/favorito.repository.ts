@@ -1,7 +1,6 @@
-import { PrismaClient, Favorito } from '@prisma/client';
+import prisma from "../config/prisma";
+import { Favorito } from '@prisma/client';
 import { IFavoritoRepository } from '../interfaces/favorito.repository.interface';
-
-const prisma = new PrismaClient();
 
 export class PrismaFavoritoRepository implements IFavoritoRepository {
 

@@ -1,8 +1,7 @@
-import { PrismaClient, Carrito } from '@prisma/client';
+import prisma from "../config/prisma";
+import { Carrito } from '@prisma/client';
 import { ICarritoRepository } from '../interfaces/carrito.repository.interface';
 import { CarritoDetalladoDTO } from '../dtos/carrito.dto';
-
-const prisma = new PrismaClient();
 
 export class PrismaCarritoRepository implements ICarritoRepository {
 

@@ -14,7 +14,11 @@ dotenv.config();
 const app = express();
 
 // Middlewares Globales
-app.use(cors());
+app.use(cors({
+  origin: "https://www.libreriapaola.cl",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json({ limit: '5mb' }));
 setupSwagger(app);
 

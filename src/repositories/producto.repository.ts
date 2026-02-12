@@ -1,8 +1,7 @@
-import { PrismaClient, Producto, Prisma, Categoria } from '@prisma/client';
+import prisma from "../config/prisma";
+import { Producto, Prisma } from '@prisma/client';
 import { IProductoRepository } from '../interfaces/producto.repository.interface';
 import { CreateProductoDTO, PaginatedResult } from '@/dtos/producto.dto';
-
-const prisma = new PrismaClient();
 
 export class PrismaProductoRepository implements IProductoRepository {
 
@@ -75,7 +74,7 @@ export class PrismaProductoRepository implements IProductoRepository {
         nombre: p.nombre,
         descripcion: p.descripcion ?? null,
         imagen: p.imagen ?? null,
-        precio: new Prisma.Decimal(p.precio),
+        precio:new Prisma.Decimal(p.precio),
         stock: p.stock,
         producto_codigo: p.producto_codigo ?? '',
         categoria_id: p.categoria_id

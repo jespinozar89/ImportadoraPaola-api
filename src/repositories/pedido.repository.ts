@@ -1,8 +1,7 @@
-import { PrismaClient, Pedido, EstadoPedido } from '@prisma/client';
+import prisma from "../config/prisma";
+import { Pedido, EstadoPedido } from '@prisma/client';
 import { IPedidoRepository } from '../interfaces/pedido.repository.interface';
 import { CreatePedidoDTO } from '@/dtos/pedido.dto';
-
-const prisma = new PrismaClient();
 
 export class PrismaPedidoRepository implements IPedidoRepository {
 

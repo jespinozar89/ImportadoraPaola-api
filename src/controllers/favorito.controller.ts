@@ -25,7 +25,7 @@ export class FavoritoController {
       const productoIdStr = req.params.productoId;
       if (!productoIdStr) throw new Error("ID de producto no proporcionado");
 
-      const productoId = parseInt(productoIdStr, 10);
+      const productoId = parseInt(String(productoIdStr), 10);
       if (Number.isNaN(productoId)) throw new Error("ID de producto inválido");
       
       await this.favoritoService.removeFavorito(usuarioId, productoId);

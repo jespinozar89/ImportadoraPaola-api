@@ -1,7 +1,6 @@
-import { PrismaClient, Categoria, Prisma } from '@prisma/client';
+import prisma from "../config/prisma";
+import { Categoria, Prisma } from '@prisma/client';
 import { ICategoriaRepository } from '../interfaces/categoria.repository.interface';
-
-const prisma = new PrismaClient();
 
 export class PrismaCategoriaRepository implements ICategoriaRepository {
 

@@ -1,9 +1,8 @@
-import { PrismaClient, type Usuario } from "@prisma/client";
+import prisma from "../config/prisma";
+import { type Usuario } from "@prisma/client";
 import type { IUsuarioRepository } from "../interfaces/usuario.repository.interface";
 import { UpdateUserDTO, UsuarioPerfil } from "@/dtos/usuario.dto";
 import { resetTokenDTO } from '../dtos/usuario.dto';
-
-const prisma = new PrismaClient();
 
 export class PrismaUsuarioRepository implements IUsuarioRepository {
 
