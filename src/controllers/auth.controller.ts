@@ -45,8 +45,9 @@ export class AuthController {
 
   async updatePerfil(req: AuthRequest, res: Response) {
     try {
-      const usuarioId = req.usuarioId;
+      const {usuarioId, rol} = req;
       if (!usuarioId) throw new Error("Usuario no identificado");
+      if (rol === 'administrador') throw new Error("Usuario no identificado");
 
       const LoginDTO: LoginDTO = {
         email: req.body.email,
@@ -78,22 +79,8 @@ export class AuthController {
 
     } catch (error: any) {
       let msg = "Error al actualizar el perfil del usuario";
-      let status = 400;
-
-      if (typeof error?.message === "string") {
-        const mensaje = error.message.trim();
-
-        if (mensaje === "Credenciales inválidas") {
-          msg = mensaje;
-          status = 401;
-        } else if (mensaje === "Correo no registrado") {
-          msg = mensaje;
-          status = 404;
-        }
-      }
-
       console.error("Error en updatePerfil:", error);
-      return res.status(status).json({ message: msg });
+      return res.status(404).json({ message: msg });
     }
 
   }
@@ -107,6 +94,12 @@ export class AuthController {
       const usuario = await this.authService.findByEmail(email);
 
       if (!usuario) {
+        return res.status(404).json({
+          message: "Si el correo está registrado, recibirá un mensaje pronto."
+        });
+      }
+
+      if(usuario.rol === 'administrador'){
         return res.status(404).json({
           message: "Si el correo está registrado, recibirá un mensaje pronto."
         });

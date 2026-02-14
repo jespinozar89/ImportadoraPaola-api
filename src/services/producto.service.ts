@@ -31,17 +31,11 @@ export class ProductoService {
 
   async findById(id: number) {
     const producto = await this.productoRepository.findById(id);
-    if (!producto) {
-      throw new Error(`Producto con ID ${id} no encontrado.`);
-    }
     return producto;
   }
 
   async findByCodigo(codigo: string) {
     const producto = await this.productoRepository.findByCodigo(codigo);
-    if (!producto) {
-      throw new Error(`Producto con código ${codigo} no encontrado.`);
-    }
     return producto;
   }
   

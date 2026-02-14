@@ -14,11 +14,23 @@ dotenv.config();
 const app = express();
 
 // Middlewares Globales
+const allowedOrigins = [
+  "https://libreriapaola.cl",
+  "http://localhost:4200"
+];
+
 app.use(cors({
-  origin: "https://www.libreriapaola.cl",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("No permitido por CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
+
 app.use(express.json({ limit: '5mb' }));
 setupSwagger(app);
 

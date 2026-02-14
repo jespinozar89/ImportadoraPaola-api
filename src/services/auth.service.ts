@@ -32,10 +32,10 @@ export class AuthService {
 
   async login(data: LoginDTO) {
     const usuario = await this.usuarioRepository.findByEmail(data.email);
-    if (!usuario) throw new Error("Correo no registrado");
+    if (!usuario) throw new Error("Usuario y/o contraseña ingresados no coinciden con nuestros registros.");
 
     const validPass = await bcrypt.compare(data.password, usuario.password_hash);
-    if (!validPass) throw new Error("Credenciales inválidas");
+    if (!validPass) throw new Error("Usuario y/o contraseña ingresados no coinciden con nuestros registros.");
 
     const jwtSecret: string = process.env.JWT_SECRET as string;
     const tokenExpiresIn = process.env.TOKEN_EXPIRES_IN || '1h';
