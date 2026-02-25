@@ -8,6 +8,7 @@ import pedidoRoutes from "./routes/pedido.routes";
 import { setupSwagger } from "./config/swagger";
 import favoritoRoutes from "./routes/favorito.routes";
 import carritoRoutes from "./routes/carrito.routes";
+import prisma from "./config/prisma";
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ app.use(cors({
       callback(new Error("No permitido por CORS"));
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT","PATCH", "DELETE"],
   credentials: true
 }));
 
@@ -44,7 +45,21 @@ app.use("/api/carrito", carritoRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Paola Store API corriendo en puerto ${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`🚀 API corriendo en puerto ${PORT}`);
   console.log(`📖 Swagger docs disponibles en http://localhost:${PORT}/api-docs`);
 });
+
+["SIGINT", "SIGTERM"].forEach(signal => {
+  process.on(signal, async () => {
+    console.log(`🛑 Señal ${signal} recibida, cerrando servidor...`);
+    await prisma.$disconnect();
+    server.close(() => {
+      console.log("✅ Servidor y base de datos cerrados correctamente");
+      process.exit(0);
+    });
+  });
+});
+
+
+

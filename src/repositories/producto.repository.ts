@@ -34,7 +34,7 @@ export class PrismaProductoRepository implements IProductoRepository {
         where: where,
         skip: skip,
         take: limit,
-        orderBy: { producto_id: 'desc' },
+        orderBy: { nombre: 'asc' },
         include: { categoria: true }
       }),
       prisma.producto.count({ where })

@@ -98,7 +98,9 @@ export class ProductoController {
                 });
             }
 
-            const resultado = await this.productoService.procesarCargaMasiva(req.file.buffer);
+            const { categoryId } = req.body;
+
+            const resultado = await this.productoService.procesarCargaMasiva(req.file.buffer, Number(categoryId));
 
             return res.status(200).json({
                 status: 'success',

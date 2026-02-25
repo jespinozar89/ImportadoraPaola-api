@@ -36,7 +36,7 @@ export class PedidoController {
         productos: pedidoData.detalles,
         total: Number(pedido.total)
       });
-      
+
       res.status(201).json(pedido);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -109,26 +109,59 @@ export class PedidoController {
   async CorreoStatus(req: AuthRequest, res: Response) {
     try {
 
-      const { id, estado } = req.body;
+      const { id, estado, adjuntoBase64, adjuntoNombre } = req.body;
       if (!estado) throw new Error("Estado del pedido es requerido");
       if (!id) throw new Error("ID del pedido es requerido");
 
-      const estadosValidos = Object.values(EstadoPedido); 
-      if (!estadosValidos.includes(estado)) throw new Error("Estado inválido"); 
+      const estadosValidos = Object.values(EstadoPedido);
+      if (!estadosValidos.includes(estado)) throw new Error("Estado inválido");
 
       const pedido = await this.pedidoService.findById(id);
       if (!pedido) throw new Error("Pedido no encontrado");
-      if(pedido.estado === EstadoPedido.Pendiente) throw new Error("El pedido ya está pendiente");
-      if(pedido.estado !== estado) throw new Error("El pedido no a cambiado de estado");
+      if (pedido.estado === EstadoPedido.Pendiente) throw new Error("El pedido ya está pendiente");
+      if (pedido.estado !== estado) throw new Error("El pedido no a cambiado de estado");
 
       const user = await this.authService.findById(pedido.usuario_id!);
       if (!user) throw new Error("Usuario no encontrado");
+
+      let extension = null
+      
+      if(adjuntoNombre)
+        extension = adjuntoNombre.split(".").pop()?.toLowerCase();
+
+      let contentType: string;
+      switch (extension) {
+        case "pdf":
+          contentType = "application/pdf";
+          break;
+        case "png":
+          contentType = "image/png";
+          break;
+        case "jpg":
+        case "jpeg":
+          contentType = "image/jpeg";
+          break;
+        case null:
+          contentType = "";
+          break;
+        default:
+          throw new Error("Formato de archivo no permitido. Solo PDF o imágenes.");
+      }
+
+      const adjunto = adjuntoBase64 && adjuntoNombre
+        ? {
+          filename: adjuntoNombre,
+          content: adjuntoBase64,
+          contentType
+        }
+        : undefined;
 
       await this.correoService.enviarCambioEstadoPedido(
         user.email!,
         user.nombres!,
         estado,
-        pedido.pedido_id.toString()
+        pedido.pedido_id.toString(),
+        adjunto
       );
 
       res.status(200).json("Correo enviado exitosamente.");

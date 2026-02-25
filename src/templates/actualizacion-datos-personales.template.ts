@@ -28,7 +28,7 @@ export const getUpdateDatosTemplate = (nombre: string, fecha: string = new Date(
     <p>Si tú realizaste estos cambios, no necesitas hacer nada más. Si <strong>no reconoces</strong> esta actividad, te recomendamos cambiar tu contraseña de inmediato y contactar con nuestro equipo de soporte.</p>
 
     <div style="text-align: center; margin-top: 30px;">
-      <a href="http://localhost:4200/" class="btn" style="color: white; font-weight: bold;">
+      <a href="${process.env.BASE_URL}/" class="btn" style="color: white; font-weight: bold;">
         Revisar mi Perfil
       </a>
     </div>

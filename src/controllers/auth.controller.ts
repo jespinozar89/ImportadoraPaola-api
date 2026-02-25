@@ -3,7 +3,6 @@ import { AuthService } from "../services/auth.service";
 import { CorreoService } from "../services/correo.service";
 import { AuthRequest } from "@/middlewares/auth.middleware";
 import { LoginDTO, UpdateUserDTO } from '../dtos/usuario.dto';
-import e from "express";
 
 export class AuthController {
 
@@ -15,6 +14,7 @@ export class AuthController {
   async register(req: Request, res: Response) {
     try {
       const result = await this.authService.register(req.body);
+      this.correoService.enviarNotificacionBienvenida(result.email, result.nombres);
       res.status(201).json(result);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -108,7 +108,7 @@ export class AuthController {
       this.correoService.enviarResetPassword(
         email,
         usuario.nombres,
-        `http://localhost:4200/resetPassword?token=${token}`
+        `${process.env.BASE_URL}/resetPassword?token=${token}`
       );
 
       res.status(200).json({

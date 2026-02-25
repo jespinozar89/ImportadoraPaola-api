@@ -65,7 +65,7 @@ export class ProductoService {
     return await this.productoRepository.delete(id);
   }
 
-  async procesarCargaMasiva(buffer: Buffer): Promise<CargaMasivaResult> {
+  async procesarCargaMasiva(buffer: Buffer,idCategoria: number): Promise<CargaMasivaResult> {
     const productosAInsertar: CreateProductoDTO[] = [];
     const stream = Readable.from(buffer);
 
@@ -74,8 +74,12 @@ export class ProductoService {
         .pipe(csv({ separator: ',' }))
         .on('data', (row: any) => {           
           try {
+            if(!row.CODCATEGORIA && idCategoria === 0){
+              throw new Error('error');
+            }
+            
             if (row.BARRA && row.PRODUCTO) {
-                const producto = this.mapRowToDto(row);
+                const producto = this.mapRowToDto(row, idCategoria);
                 if (this.isValid(producto)) {
                     productosAInsertar.push(producto);
                 }
@@ -100,16 +104,19 @@ export class ProductoService {
     });
   }
 
-  private mapRowToDto(row: ProductoCsvRow): CreateProductoDTO {
+  private mapRowToDto(row: ProductoCsvRow, categoriaId: number): CreateProductoDTO {
     const precioLimpio = row.VENTA ? row.VENTA.toString().replace(/[^0-9]/g, '') : '0';
+
+    if(row.CODCATEGORIA)
+      categoriaId = Number(row.CODCATEGORIA);
 
     return {
       producto_codigo: row.BARRA, 
       nombre: row.PRODUCTO,   
-      descripcion: 'Sin descripción',      
+      descripcion: row.PRODUCTO,      
       precio: parseInt(precioLimpio, 10),
       stock: 1,
-      categoria_id: 19
+      categoria_id: categoriaId
     };
   }
 

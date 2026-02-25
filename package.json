@@ -4,6 +4,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "reset": "bash src/scripts/reset-prisma.sh",
+    "reset-full": "bash src/scripts/reset-full.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

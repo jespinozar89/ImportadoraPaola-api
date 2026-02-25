@@ -26,9 +26,13 @@ export class PrismaPedidoRepository implements IPedidoRepository {
     });
   }
 
-  async findAll(): Promise<Pedido[]> {
+  async findAll(): Promise<any[]> {
     return await prisma.pedido.findMany({
-      include: {
+      select: {
+        pedido_id: true,
+        fecha_pedido: true,
+        total: true,
+        estado: true,
         usuario: {
           select: {
             nombres: true,
@@ -37,22 +41,48 @@ export class PrismaPedidoRepository implements IPedidoRepository {
             telefono: true
           }
         },
-        detalles: true
+        detalles: {
+          select: {
+            cantidad: true,
+            precio_unitario: true,
+            producto: {
+              select: {
+                nombre: true
+              }
+            }
+          }
+        }
       },
       orderBy: { fecha_pedido: 'desc' }
     });
   }
 
-  async findByUserId(userId: number): Promise<Pedido[]> {
+  async findByUserId(userId: number): Promise<any[]> {
     return await prisma.pedido.findMany({
       where: { usuario_id: userId },
-      include: {
-        detalles:
-          { include: { producto: true } }
+      select: {
+        pedido_id: true,
+        fecha_pedido: true,
+        total: true,
+        estado: true,
+        comprobante_pago: false,
+        detalles: {
+          select: {
+            cantidad: true,
+            precio_unitario: true,
+            producto: {
+              select: {
+                nombre: true,
+                imagen: true
+              }
+            }
+          }
+        }
       },
       orderBy: { fecha_pedido: 'desc' }
     });
   }
+
 
   async findOrderByUserIdAndPedidoId(userId: number, pedidoId: number): Promise<Pedido | null> {
     return await prisma.pedido.findFirst({
@@ -88,10 +118,10 @@ export class PrismaPedidoRepository implements IPedidoRepository {
   async updateStatus(id: number, estado: EstadoPedido): Promise<Pedido> {
     return await prisma.pedido.update({
       where: { pedido_id: id },
-      data: { 
-        estado: estado, 
-        fecha_cambio_estado: new Date() 
-       }
+      data: {
+        estado: estado,
+        fecha_cambio_estado: new Date()
+      }
     });
   }
 }
