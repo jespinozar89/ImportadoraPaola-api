@@ -14,7 +14,7 @@ export class PrismaPedidoRepository implements IPedidoRepository {
         fecha_cambio_estado: new Date(),
         estado: 'Pendiente',
         total: data.total,
-        comprobante_pago: data.comprobante_pago ?? null,
+        klap_order_id: data.klap_order_id ?? null,
         detalles: {
           create: data.detalles.map(d => ({
             producto_id: d.producto_id,
@@ -65,7 +65,7 @@ export class PrismaPedidoRepository implements IPedidoRepository {
         fecha_pedido: true,
         total: true,
         estado: true,
-        comprobante_pago: false,
+        klap_order_id: false,
         detalles: {
           select: {
             cantidad: true,

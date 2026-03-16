@@ -31,8 +31,24 @@ import { CarritoController } from "../controllers/carrito.controller";
 //Correo
 import { CorreoService } from "../services/correo.service";
 
+//Klap
+import { KlapService } from "../services/klap.service";
+import { KlapController } from "../controllers/klap.controller";
+
+//webhook
+import { WebhookController } from '../controllers/webhook.controller';
+import { WebhookService } from "../services/webhook.service";
+
 // --- Correo Module Instances ---
 const correoService = new CorreoService();
+
+// --- Klap Module ---
+const klapService = new KlapService();
+const klapController = new KlapController(klapService);
+
+// --- Webhook ---
+const webhookService = new WebhookService();
+const webhookController = new WebhookController(webhookService);
 
 // --- Auth Module Instances ---
 const usuarioRepository = new PrismaUsuarioRepository();
@@ -70,5 +86,7 @@ export {
     productoController,
     pedidoController,
     favoritoController,
-    carritoController
+    carritoController,
+    klapController,
+    webhookController
 };

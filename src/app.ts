@@ -1,14 +1,16 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import prisma from "./config/prisma";
+import { setupSwagger } from "./config/swagger";
 import authRoutes from "./routes/auth.routes";
 import categoriaRoutes from "./routes/categoria.routes";
 import productoRoutes from "./routes/productos.routes";
 import pedidoRoutes from "./routes/pedido.routes";
-import { setupSwagger } from "./config/swagger";
 import favoritoRoutes from "./routes/favorito.routes";
 import carritoRoutes from "./routes/carrito.routes";
-import prisma from "./config/prisma";
+import klapRoutes from "./routes/klap.routes";
+import webhookRoutes from "./routes/webhook.routes";
 
 dotenv.config();
 
@@ -17,7 +19,10 @@ const app = express();
 // Middlewares Globales
 const allowedOrigins = [
   "https://libreriapaola.cl",
-  "http://localhost:4200"
+  "http://localhost:4200",
+  "http://localhost:3000",
+  "https://api.pasarela.multicaja.cl",
+  "https://api-pasarela-sandbox.mcdesaqa.cl"
 ];
 
 app.use(cors({
@@ -42,6 +47,8 @@ app.use("/api/productos", productoRoutes);
 app.use("/api/pedidos", pedidoRoutes);
 app.use("/api/favoritos", favoritoRoutes);
 app.use("/api/carrito", carritoRoutes);
+app.use("/api/klap", klapRoutes);
+app.use("/api/webhooks", webhookRoutes); 
 
 const PORT = process.env.PORT || 3000;
 

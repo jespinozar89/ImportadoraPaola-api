@@ -35,10 +35,12 @@ export class PedidoService {
       });
     }
 
+    console.log("createTransaction:",data);
+
     return await this.pedidoRepository.createTransaction({
       usuario_id: data.usuario_id,
       total: totalPedido,
-      comprobante_pago: data.comprobante_pago,
+      klap_order_id: data.klap_order_id,
       detalles: detallesProcesados
     });
   }

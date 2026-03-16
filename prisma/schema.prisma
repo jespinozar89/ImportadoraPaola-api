@@ -1,6 +1,5 @@
 generator client {
   provider      = "prisma-client-js"
-  engineType    = "binary"
   binaryTargets = ["native"]
 }
 
@@ -83,12 +82,12 @@ model Producto {
 
 model Pedido {
   pedido_id    Int          @id @default(autoincrement())
+  klap_order_id  String?   @db.VarChar(64) 
   usuario_id   Int?
   fecha_pedido DateTime     @default(now()) @db.Timestamp(0)
   fecha_cambio_estado DateTime? 
   estado       EstadoPedido @default(Pendiente)
   total        Decimal      @default(0) @db.Decimal(10, 2)
-  comprobante_pago       String?  @db.MediumText
 
   // Relaciones
   usuario      Usuario?     @relation(fields: [usuario_id], references: [usuario_id])

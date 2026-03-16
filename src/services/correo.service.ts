@@ -6,7 +6,6 @@ import { getBienvenidaTemplate } from '../templates/bienvenida.template';
 import nodemailer from 'nodemailer';
 
 export class CorreoService {
-    // private ultimosEnvios: Map<string, number> = new Map();
     private transporter: nodemailer.Transporter;
 
     constructor() {

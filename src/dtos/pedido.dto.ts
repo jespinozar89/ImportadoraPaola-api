@@ -1,7 +1,7 @@
 export interface CreatePedidoDTO {
     usuario_id: number;
     total: number;
-    comprobante_pago?: string | undefined; 
+    klap_order_id?: string | undefined; 
     detalles: DetallePedidoDTO[]; 
 }
 

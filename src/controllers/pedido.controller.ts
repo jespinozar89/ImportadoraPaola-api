@@ -25,7 +25,7 @@ export class PedidoController {
         usuario_id: userId,
         total: req.body.total,
         detalles: req.body.detalles,
-        comprobante_pago: req.body.comprobante_pago
+        klap_order_id: req.body.klap_order_id
       };
 
       const pedido = await this.pedidoService.create(pedidoData);
