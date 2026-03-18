@@ -7,5 +7,6 @@ export interface IPedidoRepository {
   findByUserId(userId: number): Promise<Pedido[]>;
   findOrderByUserIdAndPedidoId(userId: number, pedidoId: number): Promise<Pedido | null> 
   findById(id: number): Promise<Pedido | null>;
+  findByKlapId(id: string): Promise<Pedido | null>;
   updateStatus(id: number, estado: any): Promise<Pedido>;
 }

@@ -18,7 +18,7 @@ export class KlapService {
                         tax: 1000,
                     },
                 },
-                methods: ["tarjetas"],
+                methods: ["tarjetas",],
                 items,
                 description: "Orden de prueba desde backend Node",
                 customs: [
@@ -59,9 +59,39 @@ export class KlapService {
                 }
             );
 
-            return { status: response.data.status };
+            return { 
+                status: response.data.status, 
+                order_id: response.data.order_id, 
+                reference_id: response.data.reference_id,
+                total: response.data.amount.total,
+            };
         } catch (error: any) {
             throw new Error(error.response?.data?.message || "Error consultando estado de la orden en Klap");
+        }
+    }
+
+    async refundOrder(orderId: string, referenceId: string, amount: number) {
+        try {
+            const body = {
+                reference_id: referenceId,
+                amount,
+            };
+
+            const response = await axios.post(
+                `${klapConfig.apiUrl}/payment-gateway/v1/orders/${orderId}/refund`,
+                body,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        apikey: klapConfig.apiKey,
+                    },
+                    timeout: 10000
+                }
+            );
+
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.response?.data?.message || "Error realizando reembolso en Klap");
         }
     }
 

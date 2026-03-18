@@ -93,10 +93,27 @@ export class PedidoController {
   async updateStatus(req: AuthRequest, res: Response) {
     try {
       const id = RequestHelpers.getIdParam(req, res);
+      const userRol = req.rol;
+      const userId = req.usuarioId;
+    
       if (id === null) return;
 
-      const { estado } = req.body;
+      let { estado } = req.body;
       if (!estado) throw new Error("Estado del pedido es requerido");
+      if (!userId) throw new Error("Usuario no identificado");
+
+      const pedidoUsuario = await this.pedidoService.findById(id);
+      if (!pedidoUsuario) throw new Error("Pedido no encontrado");
+
+      if(userRol === 'cliente'){
+        if (pedidoUsuario.usuario_id !== userId) throw new Error("No tienes permiso para actualizar este pedido");  
+        if(pedidoUsuario.estado === EstadoPedido.Pendiente){
+          estado = EstadoPedido.Cancelado;
+        }
+        else{
+          throw new Error("Error al actualizar el estado del pedido.");
+        }
+      }
 
       const pedido = await this.pedidoService.updateStatus(id, estado);
       res.status(200).json(pedido);

@@ -1,7 +1,9 @@
+import { authenticateToken } from "../middlewares/auth.middleware";
 import { klapController } from "../config/container";
 import { Router } from "express";
 
 const router = Router();
+router.use(authenticateToken);
 
 /**
  * @openapi
@@ -125,5 +127,80 @@ router.post("/pay", klapController.CreateOrder.bind(klapController));
  *         description: Error interno al consultar el estado de la orden
  */
 router.get("/status/:orderId", klapController.GetOrderStatus.bind(klapController));
+
+/**
+ * @openapi
+ * /api/klap/orders/{orderId}/refund:
+ *   post:
+ *     summary: Generar un reembolso o anulación de una orden en Klap
+ *     tags:
+ *       - Klap
+ *     parameters:
+ *       - name: orderId
+ *         in: path
+ *         required: true
+ *         description: Identificador de la orden en Klap
+ *         schema:
+ *           type: string
+ *           example: 1M5595675989039BWZqK
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - referenceId
+ *               - amount
+ *             properties:
+ *               referenceId:
+ *                 type: string
+ *                 description: Identificador único interno del comercio para el reembolso
+ *                 example: REF-REFUND_TEST_001
+ *               amount:
+ *                 type: number
+ *                 description: Monto a reembolsar (puede ser total o parcial)
+ *                 example: 12990
+ *     responses:
+ *       201:
+ *         description: Reembolso realizado exitosamente en Klap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 reference_id:
+ *                   type: string
+ *                   example: REF-REFUND_TEST_001
+ *                 order_id:
+ *                   type: string
+ *                   example: 1M5595675989039BWZqK
+ *                 type:
+ *                   type: string
+ *                   enum: [refund, partial_refund]
+ *                   example: refund
+ *                 amount:
+ *                   type: number
+ *                   example: 12990
+ *                 refundable_amount:
+ *                   type: number
+ *                   example: 0
+ *                 status:
+ *                   type: string
+ *                   enum: [refunded, pending, failed]
+ *                   example: refunded
+ *                 mc_code:
+ *                   type: string
+ *                   example: "969726367"
+ *       400:
+ *         description: Error de validación de parámetros
+ *       401:
+ *         description: API Key inválida o no autorizada
+ *       404:
+ *         description: Orden no encontrada
+ *       500:
+ *         description: Error interno al procesar el reembolso
+ */
+router.post("/orders/:orderId/refund", klapController.RefundOrder.bind(klapController));
 
 export default router;

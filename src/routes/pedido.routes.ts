@@ -113,7 +113,7 @@ router.post("/correo-status", authorizeRole([Rol.administrador]), pedidoControll
  *       404:
  *         description: Pedido no encontrado
  */
-router.put("/:id", authorizeRole([Rol.administrador]), pedidoController.updateStatus.bind(pedidoController));
+router.put("/:id", authorizeRole([Rol.administrador,Rol.cliente]), pedidoController.updateStatus.bind(pedidoController));
 
 /**
  * @openapi

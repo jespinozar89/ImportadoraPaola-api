@@ -115,6 +115,23 @@ export class PrismaPedidoRepository implements IPedidoRepository {
     });
   }
 
+   async findByKlapId(id: string): Promise<Pedido | null> {
+    return await prisma.pedido.findFirst({
+      where: { klap_order_id: id },
+      include: {
+        usuario: {
+          select: {
+            nombres: true,
+            apellidos: true,
+            email: true,
+            telefono: true
+          }
+        },
+        detalles: { include: { producto: true } }
+      }
+    });
+  }
+
   async updateStatus(id: number, estado: EstadoPedido): Promise<Pedido> {
     return await prisma.pedido.update({
       where: { pedido_id: id },

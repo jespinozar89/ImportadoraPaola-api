@@ -63,6 +63,12 @@ export class PedidoService {
     return pedido;
   }
 
+  async findByKlapId(id: string) {
+    const pedido = await this.pedidoRepository.findByKlapId(id);
+    if (!pedido) throw new Error("Pedido no encontrado");
+    return pedido;
+  }
+
   async updateStatus(id: number, estado: EstadoPedido) {
     return await this.pedidoRepository.updateStatus(id,estado);
   }
