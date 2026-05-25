@@ -116,6 +116,18 @@ export class PedidoController {
       }
 
       const pedido = await this.pedidoService.updateStatus(id, estado);
+
+      if (pedido.estado === EstadoPedido.Cancelado){
+        const user = await this.authService.findById(pedidoUsuario.usuario_id!);
+        if (!user) throw new Error("Usuario no encontrado");
+
+        await this.correoService.enviarNotificacionReembolso(
+          user.nombres!,
+          pedidoUsuario.pedido_id.toString(),
+          user.email!,
+        );
+      }
+
       res.status(200).json(pedido);
     }
     catch (error: any) {

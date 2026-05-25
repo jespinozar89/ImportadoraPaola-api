@@ -13,25 +13,30 @@ export class KlapService {
                     currency: "CLP",
                     total,
                     details: {
-                        subtotal: total - 2000, // ejemplo
-                        fee: 1000,
-                        tax: 1000,
+                        subtotal: total,
+                        fee: 0,
+                        tax: 0,
                     },
                 },
                 methods: ["tarjetas",],
                 items,
-                description: "Orden de prueba desde backend Node",
+                description: "Compra en Librería Paola",
                 customs: [
                     { key: "tarjetas_expiration_minutes", value: "30" },
                     { key: "notify_payment_merchant", value: "true" },
                     { key: "notify_payment_user", value: "true" },
                     { key: "notify_payment_email_merchant", value: "javier.espinoza1989@gmail.com" },
                 ],
+                // webhooks: {
+                //     webhook_validation: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/validation",
+                //     webhook_confirm: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/confirm",
+                //     webhook_reject: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/reject"
+                // },
                 webhooks: {
                     webhook_validation: "https://libreriapaola.cl/api/webhooks/validation",
                     webhook_confirm: "https://libreriapaola.cl/api/webhooks/confirm",
                     webhook_reject: "https://libreriapaola.cl/api/webhooks/reject",
-                }
+                },
             };
 
             const response = await axios.post(`${klapConfig.apiUrl}/payment-gateway/v1/orders`, body, {
@@ -59,9 +64,9 @@ export class KlapService {
                 }
             );
 
-            return { 
-                status: response.data.status, 
-                order_id: response.data.order_id, 
+            return {
+                status: response.data.status,
+                order_id: response.data.order_id,
                 reference_id: response.data.reference_id,
                 total: response.data.amount.total,
             };

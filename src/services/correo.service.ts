@@ -3,6 +3,7 @@ import { getResetPasswordTemplate } from '../templates/reset-password.template';
 import { getEstadoPedidoTemplate } from '../templates/estado-pedido.template';
 import { getUpdateDatosTemplate } from '../templates/actualizacion-datos-personales.template';
 import { getBienvenidaTemplate } from '../templates/bienvenida.template';
+import { getCancelacionCompraTemplate } from '../templates/reembolso.template';
 import nodemailer from 'nodemailer';
 
 export class CorreoService {
@@ -93,5 +94,11 @@ export class CorreoService {
     async enviarNotificacionBienvenida(email: string, nombre: string) {
         const html = getBienvenidaTemplate(nombre);
         return this.send(email, '¡Bienvenido a Librería Paola!', html);
+    }
+
+    // FLUJO 6: Reembolso usuario
+    async enviarNotificacionReembolso(nombre: string, idPedido: string, email: string) {
+        const html = getCancelacionCompraTemplate(nombre, idPedido);
+        return this.send(email, 'Cancelación Procesada Exitosamente', html);
     }
 }
