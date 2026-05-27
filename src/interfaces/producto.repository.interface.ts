@@ -1,4 +1,5 @@
-import { CreateProductoDTO, PaginatedResult } from '@/dtos/producto.dto';
+import { PaginatedResult } from '@/dtos/paginated.dto';
+import { CreateProductoDTO } from '@/dtos/producto.dto';
 import { Producto, Prisma } from '@prisma/client';
 
 export interface IProductoRepository {

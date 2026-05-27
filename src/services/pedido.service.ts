@@ -49,8 +49,8 @@ export class PedidoService {
     return await this.pedidoRepository.findAll();
   }
 
-  async findByUserId(userId: number) {
-    return await this.pedidoRepository.findByUserId(userId);
+  async findByUserId(userId: number, page: number, limit: number, search?: string) {
+    return await this.pedidoRepository.findByUserId(userId, page, limit, search);
   }
 
   async findOrderByUserIdAndPedidoId(userId: number, pedidoId: number) {

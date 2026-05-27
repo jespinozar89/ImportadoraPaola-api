@@ -55,11 +55,21 @@ export class PedidoController {
   async findMyOrders(req: AuthRequest, res: Response) {
     try {
       const userId = req.usuarioId;
-      if (!userId) throw new Error("Usuario no identificado");
-      const pedidos = await this.pedidoService.findByUserId(userId);
-      res.status(200).json(pedidos);
+      if (!userId) {
+        return res.status(401).json({ message: "Usuario no identificado" });
+      }
+
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const search = req.query.search ? String(req.query.search) : undefined;
+
+      const pedidosPaginados = await this.pedidoService.findByUserId(userId, page, limit, search);
+
+      return res.status(200).json(pedidosPaginados);
+
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      return res.status(500).json({ message: error.message });
     }
   }
 
@@ -95,7 +105,7 @@ export class PedidoController {
       const id = RequestHelpers.getIdParam(req, res);
       const userRol = req.rol;
       const userId = req.usuarioId;
-    
+
       if (id === null) return;
 
       let { estado } = req.body;
@@ -105,19 +115,19 @@ export class PedidoController {
       const pedidoUsuario = await this.pedidoService.findById(id);
       if (!pedidoUsuario) throw new Error("Pedido no encontrado");
 
-      if(userRol === 'cliente'){
-        if (pedidoUsuario.usuario_id !== userId) throw new Error("No tienes permiso para actualizar este pedido");  
-        if(pedidoUsuario.estado === EstadoPedido.Pendiente){
+      if (userRol === 'cliente') {
+        if (pedidoUsuario.usuario_id !== userId) throw new Error("No tienes permiso para actualizar este pedido");
+        if (pedidoUsuario.estado === EstadoPedido.Pendiente) {
           estado = EstadoPedido.Cancelado;
         }
-        else{
+        else {
           throw new Error("Error al actualizar el estado del pedido.");
         }
       }
 
       const pedido = await this.pedidoService.updateStatus(id, estado);
 
-      if (pedido.estado === EstadoPedido.Cancelado){
+      if (pedido.estado === EstadoPedido.Cancelado) {
         const user = await this.authService.findById(pedidoUsuario.usuario_id!);
         if (!user) throw new Error("Usuario no encontrado");
 
@@ -154,8 +164,8 @@ export class PedidoController {
       if (!user) throw new Error("Usuario no encontrado");
 
       let extension = null
-      
-      if(adjuntoNombre)
+
+      if (adjuntoNombre)
         extension = adjuntoNombre.split(".").pop()?.toLowerCase();
 
       let contentType: string;

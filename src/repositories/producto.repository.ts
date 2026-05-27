@@ -1,7 +1,8 @@
 import prisma from "../config/prisma";
 import { Producto, Prisma } from '@prisma/client';
 import { IProductoRepository } from '../interfaces/producto.repository.interface';
-import { CreateProductoDTO, PaginatedResult } from '@/dtos/producto.dto';
+import { CreateProductoDTO } from '@/dtos/producto.dto';
+import { PaginatedResult } from "@/dtos/paginated.dto";
 
 export class PrismaProductoRepository implements IProductoRepository {
 

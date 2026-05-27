@@ -2,6 +2,7 @@ import prisma from "../config/prisma";
 import { Pedido, EstadoPedido } from '@prisma/client';
 import { IPedidoRepository } from '../interfaces/pedido.repository.interface';
 import { CreatePedidoDTO } from '@/dtos/pedido.dto';
+import { PaginatedResult } from "@/dtos/paginated.dto";
 
 export class PrismaPedidoRepository implements IPedidoRepository {
 
@@ -57,30 +58,73 @@ export class PrismaPedidoRepository implements IPedidoRepository {
     });
   }
 
-  async findByUserId(userId: number): Promise<any[]> {
-    return await prisma.pedido.findMany({
-      where: { usuario_id: userId },
-      select: {
-        pedido_id: true,
-        fecha_pedido: true,
-        total: true,
-        estado: true,
-        klap_order_id: false,
-        detalles: {
-          select: {
-            cantidad: true,
-            precio_unitario: true,
-            producto: {
-              select: {
-                nombre: true,
-                imagen: true
+  async findByUserId(
+    userId: number,
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<PaginatedResult<any>> {
+    const skip = (page - 1) * limit;
+
+    let where: any = {
+      usuario_id: userId
+    };
+
+    if (search && search.trim() !== '') {
+      const searchTerms = search.trim();
+
+      where.OR = [
+        ...(!isNaN(Number(searchTerms)) ? [{ pedido_id: Number(searchTerms) }] : []),
+        {
+          detalles: {
+            some: {
+              producto: {
+                nombre: {
+                  contains: searchTerms,
+                }
               }
             }
           }
         }
-      },
-      orderBy: { fecha_pedido: 'desc' }
-    });
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.pedido.findMany({
+        where: where,
+        skip: skip,
+        take: limit,
+        select: {
+          pedido_id: true,
+          fecha_pedido: true,
+          total: true,
+          estado: true,
+          detalles: {
+            select: {
+              cantidad: true,
+              precio_unitario: true,
+              producto: {
+                select: {
+                  nombre: true,
+                  imagen: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: { fecha_pedido: 'desc' }
+      }),
+      prisma.pedido.count({ where })
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        last_page: Math.ceil(total / limit)
+      }
+    };
   }
 
 
@@ -115,7 +159,7 @@ export class PrismaPedidoRepository implements IPedidoRepository {
     });
   }
 
-   async findByKlapId(id: string): Promise<Pedido | null> {
+  async findByKlapId(id: string): Promise<Pedido | null> {
     return await prisma.pedido.findFirst({
       where: { klap_order_id: id },
       include: {
