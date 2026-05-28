@@ -45,10 +45,20 @@ export class PedidoController {
 
   async findAll(req: AuthRequest, res: Response) {
     try {
-      const pedidos = await this.pedidoService.findAll();
-      res.status(200).json(pedidos);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const filtros = {
+        estado: req.query.estado ? String(req.query.estado) : 'todos',
+        search: req.query.search ? String(req.query.search) : undefined
+      };
+
+      const resultadoPaginado = await this.pedidoService.findAll(page, limit, filtros);
+
+      return res.status(200).json(resultadoPaginado);
+
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      return res.status(500).json({ message: error.message });
     }
   }
 

@@ -45,8 +45,8 @@ export class PedidoService {
     });
   }
 
-  async findAll() {
-    return await this.pedidoRepository.findAll();
+  async findAll(page: number, limit: number, filtros: any) {
+    return await this.pedidoRepository.findAll(page, limit, filtros);
   }
 
   async findByUserId(userId: number, page: number, limit: number, search?: string) {
