@@ -35,8 +35,6 @@ export class PedidoService {
       });
     }
 
-    console.log("createTransaction:",data);
-
     return await this.pedidoRepository.createTransaction({
       usuario_id: data.usuario_id,
       total: totalPedido,
