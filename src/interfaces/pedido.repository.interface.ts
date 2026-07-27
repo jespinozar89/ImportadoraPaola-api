@@ -4,8 +4,6 @@ import { Pedido } from '@prisma/client';
 
 export interface IPedidoRepository {
   createTransaction(data: CreatePedidoDTO): Promise<Pedido>;
-  //findAll(): Promise<Pedido[]>;
-  // En tu IPedidoRepository
   findAll(page: number, limit: number, filtros: any): Promise<PaginatedResult<any>>;
   findByUserId(userId: number, page: number, limit: number, search?: string): Promise<PaginatedResult<any>> 
   findOrderByUserIdAndPedidoId(userId: number, pedidoId: number): Promise<Pedido | null> 

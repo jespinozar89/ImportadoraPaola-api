@@ -30,7 +30,21 @@ export class PrismaFavoritoRepository implements IFavoritoRepository {
     return await prisma.favorito.findMany({
       where: { usuario_id },
       include: {
-        producto: true
+        producto: {
+          include: {
+            imagenes: {
+              where: {
+                es_principal: true
+              },
+              take: 1,
+              select: {
+                imagen_id: true,
+                url: true,
+                es_principal: true
+              }
+            }
+          }
+        }
       },
       orderBy: { fecha_agregado: 'desc' }
     });

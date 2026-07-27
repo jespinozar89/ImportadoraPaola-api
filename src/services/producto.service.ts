@@ -2,27 +2,21 @@ import { Readable } from 'stream';
 import csv from 'csv-parser';
 import { CreateProductoDTO, UpdateProductoDTO } from '../dtos/producto.dto';
 import { IProductoRepository } from '../interfaces/producto.repository.interface';
-import { Prisma } from '@prisma/client';
+import { Prisma, Producto } from '@prisma/client';
 import { CargaMasivaResult, ProductoCsvRow } from '@/dtos/archivoCSV.dto';
 
 export class ProductoService {
-  constructor(private productoRepository: IProductoRepository) {}
+  constructor(private productoRepository: IProductoRepository) { }
 
-  async create(data: CreateProductoDTO) {
+  async create(data: CreateProductoDTO): Promise<Producto> {
     if (data.producto_codigo) {
       const existe = await this.productoRepository.findByCodigo(data.producto_codigo);
       if (existe) {
-        throw new Error(`El código de producto '${data.producto_codigo}' ya está en uso.`);
+        throw new Error(`El código '${data.producto_codigo}' ya está registrado.`);
       }
     }
 
-    const dataToCreate: Prisma.ProductoCreateInput = {
-        ...data,
-        precio: new Prisma.Decimal(data.precio),
-        producto_codigo: data.producto_codigo ?? '',
-    };
-
-    return await this.productoRepository.create(dataToCreate);
+    return await this.productoRepository.create(data);
   }
 
   async findAll(page: number, limit: number, filtros: any) {
@@ -38,26 +32,18 @@ export class ProductoService {
     const producto = await this.productoRepository.findByCodigo(codigo);
     return producto;
   }
-  
-  async update(id: number, data: UpdateProductoDTO) {
+
+  async update(id: number, data: UpdateProductoDTO): Promise<Producto> {
+    await this.findById(id);
 
     if (data.producto_codigo) {
-       const existe = await this.productoRepository.findByCodigo(data.producto_codigo);
-       
-       if (existe && existe.producto_id !== id) {
-          throw new Error(`El código '${data.producto_codigo}' ya pertenece a otro producto.`);
-       }
+      const existe = await this.productoRepository.findByCodigo(data.producto_codigo);
+      if (existe && existe.producto_id !== Number(id)) {
+        throw new Error(`El código '${data.producto_codigo}' ya pertenece a otro producto.`);
+      }
     }
 
-    await this.findById(id); 
-    
-    const { precio, ...rest } = data;
-    const dataToUpdate: Prisma.ProductoUpdateInput = {
-      ...rest,
-      ...(precio !== undefined ? { precio: new Prisma.Decimal(precio) } : {}),
-    };
-    
-    return await this.productoRepository.update(id, dataToUpdate);
+    return await this.productoRepository.update(Number(id), data);
   }
 
   async delete(id: number) {
@@ -65,24 +51,24 @@ export class ProductoService {
     return await this.productoRepository.delete(id);
   }
 
-  async procesarCargaMasiva(buffer: Buffer,idCategoria: number): Promise<CargaMasivaResult> {
+  async procesarCargaMasiva(buffer: Buffer, idCategoria: number): Promise<CargaMasivaResult> {
     const productosAInsertar: CreateProductoDTO[] = [];
     const stream = Readable.from(buffer);
 
     return new Promise((resolve, reject) => {
       stream
         .pipe(csv({ separator: ',' }))
-        .on('data', (row: any) => {           
+        .on('data', (row: any) => {
           try {
-            if(!row.CODCATEGORIA && idCategoria === 0){
+            if (!row.CODCATEGORIA && idCategoria === 0) {
               throw new Error('error');
             }
-            
+
             if (row.BARRA && row.PRODUCTO) {
-                const producto = this.mapRowToDto(row, idCategoria);
-                if (this.isValid(producto)) {
-                    productosAInsertar.push(producto);
-                }
+              const producto = this.mapRowToDto(row, idCategoria);
+              if (this.isValid(producto)) {
+                productosAInsertar.push(producto);
+              }
             }
           } catch (error) {
             console.warn('Fila omitida por error de formato:', row);
@@ -107,13 +93,13 @@ export class ProductoService {
   private mapRowToDto(row: ProductoCsvRow, categoriaId: number): CreateProductoDTO {
     const precioLimpio = row.VENTA ? row.VENTA.toString().replace(/[^0-9]/g, '') : '0';
 
-    if(row.CODCATEGORIA)
+    if (row.CODCATEGORIA)
       categoriaId = Number(row.CODCATEGORIA);
 
     return {
-      producto_codigo: row.BARRA, 
-      nombre: row.PRODUCTO,   
-      descripcion: row.PRODUCTO,      
+      producto_codigo: row.BARRA,
+      nombre: row.PRODUCTO,
+      descripcion: row.PRODUCTO,
       precio: parseInt(precioLimpio, 10),
       stock: 1,
       categoria_id: categoriaId
@@ -122,7 +108,7 @@ export class ProductoService {
 
   private isValid(dto: CreateProductoDTO): boolean {
     return (
-      !!dto.nombre && 
+      !!dto.nombre &&
       !!dto.producto_codigo &&
       !isNaN(dto.precio)
     );

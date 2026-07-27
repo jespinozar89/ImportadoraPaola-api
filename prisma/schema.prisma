@@ -64,7 +64,7 @@ model Categoria {
 model Producto {
   producto_id  Int      @id @default(autoincrement())
   producto_codigo String @unique @db.VarChar(250)
-  imagen       String?  @db.MediumText
+  //imagen       String?  @db.MediumText
   nombre       String   @db.VarChar(150)
   descripcion  String?  @db.Text
   precio       Decimal  @db.Decimal(10, 2)
@@ -76,8 +76,21 @@ model Producto {
   detalles     ProductoPedido[]
   favoritos       Favorito[]  
   carrito         Carrito[]   
+  imagenes      ProductoImagen[]
 
   @@map("Productos")
+}
+
+model ProductoImagen {
+  imagen_id    Int      @id @default(autoincrement())
+  url          String @db.MediumText
+  es_principal Boolean  @default(false)
+  orden        Int      @default(0)
+
+  producto_id  Int
+  producto     Producto @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
+
+  @@index([producto_id])
 }
 
 model Pedido {

@@ -106,7 +106,7 @@ export class PrismaPedidoRepository implements IPedidoRepository {
 
     const totalsByStatus = {
       Pendiente: 0,
-      EnPreparacion: 0, 
+      EnPreparacion: 0,
       Listo: 0,
       Entregado: 0,
       Cancelado: 0
@@ -177,7 +177,15 @@ export class PrismaPedidoRepository implements IPedidoRepository {
               producto: {
                 select: {
                   nombre: true,
-                  imagen: true
+                  imagenes: {
+                    where: {
+                      es_principal: true
+                    },
+                    take: 1,
+                    select: {
+                      url: true
+                    }
+                  }
                 }
               }
             }
@@ -198,7 +206,6 @@ export class PrismaPedidoRepository implements IPedidoRepository {
     };
   }
 
-
   async findOrderByUserIdAndPedidoId(userId: number, pedidoId: number): Promise<Pedido | null> {
     return await prisma.pedido.findFirst({
       where: {
@@ -207,7 +214,24 @@ export class PrismaPedidoRepository implements IPedidoRepository {
       },
       include: {
         detalles: {
-          include: { producto: true }
+          include: {
+            producto: {
+              include: {
+                categoria: true,
+                imagenes: {
+                  where: {
+                    es_principal: true
+                  },
+                  take: 1,
+                  select: {
+                    imagen_id: true,
+                    url: true,
+                    es_principal: true
+                  }
+                }
+              }
+            }
+          }
         }
       }
     });
@@ -225,7 +249,26 @@ export class PrismaPedidoRepository implements IPedidoRepository {
             telefono: true
           }
         },
-        detalles: { include: { producto: true } }
+        detalles: {
+          include: {
+            producto: {
+              include: {
+                categoria: true,
+                imagenes: {
+                  where: {
+                    es_principal: true
+                  },
+                  take: 1,
+                  select: {
+                    imagen_id: true,
+                    url: true,
+                    es_principal: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     });
   }

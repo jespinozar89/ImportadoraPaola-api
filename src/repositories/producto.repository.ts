@@ -1,13 +1,44 @@
 import prisma from "../config/prisma";
 import { Producto, Prisma } from '@prisma/client';
 import { IProductoRepository } from '../interfaces/producto.repository.interface';
-import { CreateProductoDTO } from '@/dtos/producto.dto';
+import { CreateProductoDTO, UpdateProductoDTO } from '@/dtos/producto.dto';
 import { PaginatedResult } from "@/dtos/paginated.dto";
 
 export class PrismaProductoRepository implements IProductoRepository {
 
-  async create(data: Prisma.ProductoCreateInput): Promise<Producto> {
-    return await prisma.producto.create({ data });
+  async create(data: CreateProductoDTO): Promise<Producto> {
+    const { imagenes, categoria_id, ...restOfData } = data;
+
+    return await prisma.producto.create({
+      data: {
+        ...restOfData,
+        precio: new Prisma.Decimal(data.precio),
+        producto_codigo: data.producto_codigo ?? '',
+
+        ...(categoria_id ? { categoria: { connect: { categoria_id } } } : {}),
+
+        ...(imagenes && imagenes.length > 0
+          ? {
+            imagenes: {
+              create: imagenes.map((img, index) => ({
+                url: img.url,
+                es_principal: img.es_principal ?? index === 0,
+                orden: img.orden ?? index + 1,
+              })),
+            },
+          }
+          : {}),
+      },
+      include: {
+        categoria: true,
+        imagenes: {
+          orderBy: [
+            { es_principal: 'desc' },
+            { orden: 'asc' }
+          ]
+        },
+      },
+    });
   }
 
   async findAll(page: number, limit: number, filtros: any): Promise<PaginatedResult<Producto>> {
@@ -25,8 +56,8 @@ export class PrismaProductoRepository implements IProductoRepository {
 
     if (filtros.search) {
       where.OR = [
-        { nombre: { contains: filtros.search} },
-        { producto_codigo: { contains: filtros.search} }
+        { nombre: { contains: filtros.search } },
+        { producto_codigo: { contains: filtros.search } }
       ];
     }
 
@@ -36,7 +67,20 @@ export class PrismaProductoRepository implements IProductoRepository {
         skip: skip,
         take: limit,
         orderBy: { nombre: 'asc' },
-        include: { categoria: true }
+        include: {
+          categoria: true,
+          imagenes: {
+            where: {
+              es_principal: true
+            },
+            take: 1,
+            select: {
+              imagen_id: true,
+              url: true,
+              es_principal: true
+            }
+          }
+        }
       }),
       prisma.producto.count({ where })
     ]);
@@ -52,7 +96,24 @@ export class PrismaProductoRepository implements IProductoRepository {
   }
 
   async findById(id: number): Promise<Producto | null> {
-    return await prisma.producto.findUnique({ where: { producto_id: id } });
+    return await prisma.producto.findUnique({
+      where: { producto_id: id },
+      include: {
+        categoria: true,
+        imagenes: {
+          select: {
+            imagen_id: true,
+            url: true,
+            es_principal: true,
+            orden: true
+          },
+          orderBy: [
+            { es_principal: 'desc' },
+            { orden: 'asc' }
+          ]
+        }
+      }
+    });
   }
 
   async findByCodigo(codigo: string): Promise<Producto | null> {
@@ -61,8 +122,46 @@ export class PrismaProductoRepository implements IProductoRepository {
     });
   }
 
-  async update(id: number, data: Prisma.ProductoUpdateInput): Promise<Producto> {
-    return await prisma.producto.update({ where: { producto_id: id }, data });
+  async update(id: number, data: UpdateProductoDTO | any): Promise<Producto> {
+    const {
+      imagenes,
+      categoria,
+      categoria_id,
+      producto_id,
+      ...restOfData
+    } = data;
+
+    return await prisma.producto.update({
+      where: {
+        producto_id: Number(id)
+      },
+      data: {
+        ...restOfData,
+        precio: restOfData.precio ? new Prisma.Decimal(restOfData.precio) : undefined,
+
+        ...(categoria_id ? { categoria: { connect: { categoria_id: Number(categoria_id) } } } : {}),
+
+        ...(imagenes ? {
+          imagenes: {
+            deleteMany: {}, 
+            create: imagenes.map((img: any, index: number) => ({
+              url: img.url,
+              es_principal: img.es_principal ?? index === 0,
+              orden: img.orden ?? index + 1,
+            })),
+          },
+        } : {}),
+      },
+      include: {
+        categoria: true,
+        imagenes: {
+          orderBy: [
+            { es_principal: 'desc' },
+            { orden: 'asc' }
+          ]
+        },
+      },
+    });
   }
 
   async delete(id: number): Promise<Producto> {
@@ -74,8 +173,7 @@ export class PrismaProductoRepository implements IProductoRepository {
       data: productos.map(p => ({
         nombre: p.nombre,
         descripcion: p.descripcion ?? null,
-        imagen: p.imagen ?? null,
-        precio:new Prisma.Decimal(p.precio),
+        precio: new Prisma.Decimal(p.precio),
         stock: p.stock,
         producto_codigo: p.producto_codigo ?? '',
         categoria_id: p.categoria_id
