@@ -9,6 +9,7 @@ export interface CreateProductoDTO {
   nombre: string;
   descripcion: string;
   precio: number;
+  precio_oferta?: number;
   stock: number;
   producto_codigo?: string;
   categoria_id: number;
@@ -19,6 +20,7 @@ export interface UpdateProductoDTO {
   nombre?: string;
   descripcion?: string;
   precio?: number;
+  precio_oferta?: number;
   stock?: number;
   producto_codigo?: string;
   categoria_id?: number;

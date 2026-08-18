@@ -13,6 +13,9 @@ export class PrismaProductoRepository implements IProductoRepository {
       data: {
         ...restOfData,
         precio: new Prisma.Decimal(data.precio),
+        ...(data.precio_oferta !== undefined && data.precio_oferta !== null
+          ? { precio_oferta: new Prisma.Decimal(data.precio_oferta) }
+          : { precio_oferta: null }),
         producto_codigo: data.producto_codigo ?? '',
 
         ...(categoria_id ? { categoria: { connect: { categoria_id } } } : {}),
@@ -138,6 +141,10 @@ export class PrismaProductoRepository implements IProductoRepository {
       data: {
         ...restOfData,
         precio: restOfData.precio ? new Prisma.Decimal(restOfData.precio) : undefined,
+
+        ...(restOfData.precio_oferta !== undefined 
+          ? { precio_oferta: restOfData.precio_oferta ? new Prisma.Decimal(restOfData.precio_oferta) : null } 
+          : {}),
 
         ...(categoria_id ? { categoria: { connect: { categoria_id: Number(categoria_id) } } } : {}),
 
