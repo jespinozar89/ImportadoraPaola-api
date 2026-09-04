@@ -1,6 +1,6 @@
-import { CreatePedidoDTO, DetallePedidoDTO, EstadoPedido } from '../dtos/pedido.dto';
+import { CreatePedidoDTO, EstadoPedido } from '../dtos/pedido.dto';
 import { IPedidoRepository } from '../interfaces/pedido.repository.interface';
-import { PrismaClient } from '@prisma/client';
+import { Pedido, Prisma, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -25,18 +25,23 @@ export class PedidoService {
         throw new Error(`El producto con ID ${item.producto_id} no existe.`);
       }
 
-      const precio = Number(producto.precio);
-      totalPedido += precio * item.cantidad;
+      const precioEfectivo = producto.precio_oferta && Number(producto.precio_oferta) > 0 
+        ? Number(producto.precio_oferta) 
+        : Number(producto.precio);
+
+      totalPedido += precioEfectivo * item.cantidad;
 
       detallesProcesados.push({
         producto_id: producto.producto_id,
         cantidad: item.cantidad,
-        precio_unitario: precio
+        precio_unitario: Number(producto.precio),
+        precio_unitario_oferta: item.precio_unitario_oferta ? Number(item.precio_unitario_oferta) : null,
       });
     }
 
     return await this.pedidoRepository.createTransaction({
       usuario_id: data.usuario_id,
+      estado: data.estado,
       total: totalPedido,
       klap_order_id: data.klap_order_id,
       detalles: detallesProcesados
@@ -69,5 +74,9 @@ export class PedidoService {
 
   async updateStatus(id: number, estado: EstadoPedido) {
     return await this.pedidoRepository.updateStatus(id,estado);
+  }
+
+  async updateKlapOrderId(oldKlapOrderId: string, newKlapOrderId: string): Promise<any> {
+    return await this.pedidoRepository.updateKlapOrderId(oldKlapOrderId, newKlapOrderId);
   }
 }

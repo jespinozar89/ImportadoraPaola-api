@@ -28,7 +28,14 @@ export class PrismaFavoritoRepository implements IFavoritoRepository {
 
   async findAllByUser(usuario_id: number): Promise<Favorito[]> {
     return await prisma.favorito.findMany({
-      where: { usuario_id },
+      where: { 
+        usuario_id,
+        producto: {
+          categoria: {
+            estado: 'Activo'
+          }
+        }
+      },
       include: {
         producto: {
           include: {

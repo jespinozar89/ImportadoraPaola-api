@@ -14,13 +14,19 @@ export const getConfirmacionPedidoTemplate = (data: DatosPedido) => {
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.nombre}</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.cantidad}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${item.precio_unitario.toLocaleString('es-CL')}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
+        ${(item.precio_unitario_oferta != null && item.precio_unitario_oferta > 0)
+            ? `<span style="text-decoration: line-through; color: #888; font-size: 12px; margin-right: 5px;">$${item.precio_unitario.toLocaleString('es-CL')}</span>
+            <strong style="color: #e53e3e;">$${item.precio_unitario_oferta.toLocaleString('es-CL')}</strong>`
+            : `$${item.precio_unitario.toLocaleString('es-CL')}`
+          }
+      </td>
     </tr>
   `).join('');
 
   const content = `
     <p>¡Hola <strong>${data.usuario_nombre.split(" ")[0]}</strong>!</p>
-    <p>Gracias por tu compra. Hemos recibido tu pedido <strong>#ORD-${ data.id_pedido.toString().padStart(4, '0') }</strong> y ya estamos trabajando en él.</p>
+    <p>Gracias por tu compra. Hemos recibido tu pedido <strong>#ORD-${data.id_pedido.toString().padStart(4, '0')}</strong> y ya estamos trabajando en él.</p>
     
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
       <thead>

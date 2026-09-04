@@ -23,19 +23,13 @@ export class PedidoController {
 
       const pedidoData: CreatePedidoDTO = {
         usuario_id: userId,
+        estado: EstadoPedido.PendienteDeConfirmacion,
         total: req.body.total,
         detalles: req.body.detalles,
         klap_order_id: req.body.klap_order_id
       };
 
       const pedido = await this.pedidoService.create(pedidoData);
-
-      await this.correoService.enviarConfirmacionPedido(user?.email!, {
-        id_pedido: pedido.pedido_id,
-        usuario_nombre: user?.nombres!,
-        productos: pedidoData.detalles,
-        total: Number(pedido.total)
-      });
 
       res.status(201).json(pedido);
     } catch (error: any) {

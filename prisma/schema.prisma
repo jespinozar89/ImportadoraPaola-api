@@ -21,6 +21,7 @@ enum EstadoCategoria {
 
 enum EstadoPedido {
   Pendiente
+  PendienteDeConfirmacion
   EnPreparacion
   Listo
   Entregado
@@ -114,6 +115,7 @@ model ProductoPedido {
   producto_id     Int
   cantidad        Int
   precio_unitario Decimal @db.Decimal(10, 2)
+  precio_unitario_oferta   Decimal? @db.Decimal(10, 2)
 
   // Relaciones
   pedido   Pedido   @relation(fields: [pedido_id], references: [pedido_id], onDelete: Cascade)

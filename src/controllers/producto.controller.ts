@@ -28,9 +28,9 @@ export class ProductoController {
                 search: req.query.search
             };
 
-            if (!req.rol || req.rol !== Rol.administrador) { 
-                filtros.estado = "Activo"; 
-            } 
+            if (!req.rol || req.rol !== Rol.administrador) {
+                filtros.estado = "Activo";
+            }
 
             const productos = await this.productoService.findAll(page, limit, filtros);
             res.status(200).json(productos);
@@ -115,6 +115,36 @@ export class ProductoController {
                 message: 'Ocurrió un error al procesar el archivo.',
                 details: error.message
             });
+        }
+    }
+
+    async filterWithStock(req: Request, res: Response) {
+        try {
+            const { ids } = req.query;
+
+            if (!ids) {
+                return res.status(200).json([]);
+            }
+
+            let parsedIds: number[] = [];
+
+            if (Array.isArray(ids)) {
+                parsedIds = ids.map(id => Number(id));
+            } else if (typeof ids === 'string') {
+                parsedIds = ids.split(',').map(id => Number(id));
+            }
+
+            const cleanIds = parsedIds.filter(id => !isNaN(id));
+
+            if (cleanIds.length === 0) {
+                return res.status(400).json({ message: "Los IDs proporcionados no son válidos." });
+            }
+
+            const productosConStock = await this.productoService.filterWithStock(cleanIds);
+
+            return res.status(200).json(productosConStock);
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message });
         }
     }
 

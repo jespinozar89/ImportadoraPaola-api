@@ -13,5 +13,6 @@ export interface CarritoDetalladoDTO {
   producto_id: number;
   nombre: string;
   precio: number;
+  precio_oferta?: number;
   imagen: string;
 }

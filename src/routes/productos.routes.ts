@@ -56,6 +56,38 @@ const router = Router();
 router.get("/", optionalAuth, productoController.findAll.bind(productoController));
 /**
  * @openapi
+ * /api/productos/filter-stock:
+ *   get:
+ *     summary: Filtrar IDs de productos que tienen stock disponible
+ *     tags:
+ *       - Productos
+ *     parameters:
+ *       - name: ids
+ *         in: query
+ *         required: true
+ *         description: 'Lista de IDs de productos (ej: ?ids=1,2,3 o ?ids=1&ids=2)'
+ *         style: form
+ *         explode: true
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: integer
+ *     responses:
+ *       200:
+ *         description: Arreglo de IDs que tienen stock > 0
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: integer
+ *               example: [1, 5, 12]
+ *       400:
+ *         description: Parámetro ids faltante o no válido
+ */
+router.get("/filter-stock", productoController.filterWithStock.bind(productoController));
+/**
+ * @openapi
  * /api/productos/codigo/{codigo}:
  *   get:
  *     summary: Obtener un producto por su código personalizado
@@ -110,6 +142,7 @@ router.get("/codigo/:codigo", productoController.findByCodigo.bind(productoContr
  *         description: Producto no encontrado
  */
 router.get("/:id", productoController.findById.bind(productoController));
+
 
 
 // RUTAS PROTEGIDAS (Modificación - Solo Administrador)

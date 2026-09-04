@@ -142,15 +142,15 @@ export class PrismaProductoRepository implements IProductoRepository {
         ...restOfData,
         precio: restOfData.precio ? new Prisma.Decimal(restOfData.precio) : undefined,
 
-        ...(restOfData.precio_oferta !== undefined 
-          ? { precio_oferta: restOfData.precio_oferta ? new Prisma.Decimal(restOfData.precio_oferta) : null } 
+        ...(restOfData.precio_oferta !== undefined
+          ? { precio_oferta: restOfData.precio_oferta ? new Prisma.Decimal(restOfData.precio_oferta) : null }
           : {}),
 
         ...(categoria_id ? { categoria: { connect: { categoria_id: Number(categoria_id) } } } : {}),
 
         ...(imagenes ? {
           imagenes: {
-            deleteMany: {}, 
+            deleteMany: {},
             create: imagenes.map((img: any, index: number) => ({
               url: img.url,
               es_principal: img.es_principal ?? index === 0,
@@ -189,6 +189,46 @@ export class PrismaProductoRepository implements IProductoRepository {
     });
 
     return result.count;
+  }
+
+  async deductStock(detalles: Array<{ producto_id: number; cantidad: number }>): Promise<void> {
+    await prisma.$transaction(
+      detalles.map((item) =>
+        prisma.producto.update({
+          where: {
+            producto_id: item.producto_id,
+            stock: {
+              gte: item.cantidad
+            }
+          },
+          data: {
+            stock: {
+              decrement: item.cantidad
+            }
+          }
+        })
+      )
+    );
+  }
+
+  async filterWithStock(productoIds: number[]): Promise<number[]> {
+    if (!productoIds || productoIds.length === 0) return [];
+
+    const productosConStock = await prisma.producto.findMany({
+      where: {
+        producto_id: {
+          in: productoIds
+        },
+        stock: {
+          gt: 0
+        }
+      },
+      select: {
+        producto_id: true
+      }
+    });
+
+    return productosConStock.map(p => p.producto_id);
   }
 
 }

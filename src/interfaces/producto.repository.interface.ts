@@ -10,4 +10,6 @@ export interface IProductoRepository {
   update(id: number, data: UpdateProductoDTO | any): Promise<Producto>;
   delete(id: number): Promise<Producto>;
   createBulk(productos: CreateProductoDTO[]): Promise<number>
+  deductStock(detalles: Array<{ producto_id: number; cantidad: number }>): Promise<void>;
+  filterWithStock(productoIds: number[]): Promise<number[]>;
 }

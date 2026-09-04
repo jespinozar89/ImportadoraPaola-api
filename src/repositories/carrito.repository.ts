@@ -67,6 +67,7 @@ export class PrismaCarritoRepository implements ICarritoRepository {
             producto_id: true,
             nombre: true,
             precio: true,
+            precio_oferta: true,
             imagenes: {
               where: { es_principal: true },
               take: 1,
@@ -85,6 +86,7 @@ export class PrismaCarritoRepository implements ICarritoRepository {
       producto_id: item.producto.producto_id,
       nombre: item.producto.nombre,
       precio: Number(item.producto.precio),
+      precio_oferta: Number(item.producto.precio_oferta),
       imagen: item.producto.imagenes[0]?.url ?? ""
     }));
   }

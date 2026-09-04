@@ -46,6 +46,10 @@ export class ProductoService {
     return await this.productoRepository.update(Number(id), data);
   }
 
+  async deductStock(detalles: Array<{ producto_id: number; cantidad: number }>): Promise<void> {
+    await this.productoRepository.deductStock(detalles);
+  }
+
   async delete(id: number) {
     await this.findById(id);
     return await this.productoRepository.delete(id);
@@ -112,5 +116,9 @@ export class ProductoService {
       !!dto.producto_codigo &&
       !isNaN(dto.precio)
     );
+  }
+
+  async filterWithStock(productoIds: number[]): Promise<number[]> {
+    return await this.productoRepository.filterWithStock(productoIds);
   }
 }

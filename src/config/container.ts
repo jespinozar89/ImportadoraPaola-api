@@ -42,10 +42,6 @@ import { WebhookService } from "../services/webhook.service";
 // --- Correo Module Instances ---
 const correoService = new CorreoService();
 
-// --- Webhook ---
-const webhookService = new WebhookService();
-const webhookController = new WebhookController(webhookService);
-
 // --- Auth Module Instances ---
 const usuarioRepository = new PrismaUsuarioRepository();
 const authService = new AuthService(usuarioRepository);
@@ -65,6 +61,10 @@ const productoController = new ProductoController(productoService);
 const pedidoRepository = new PrismaPedidoRepository();
 const pedidoService = new PedidoService(pedidoRepository);
 const pedidoController = new PedidoController(pedidoService,authService, correoService);
+
+// --- Webhook ---
+const webhookService = new WebhookService(pedidoService,productoService);
+const webhookController = new WebhookController(webhookService,correoService);
 
 // --- Klap Module ---
 const klapService = new KlapService();
