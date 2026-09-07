@@ -7,7 +7,12 @@ import { PaginatedResult } from "@/dtos/paginated.dto";
 export class PrismaProductoRepository implements IProductoRepository {
 
   async create(data: CreateProductoDTO): Promise<Producto> {
-    const { imagenes, categoria_id, ...restOfData } = data;
+    const { imagenes, categoria_id, categoria_ids, ...restOfData } = data as any;
+
+    // Soportar tanto categoria_ids: [1, 2] como un categoria_id individual
+    const idsCategorias: number[] = categoria_ids && Array.isArray(categoria_ids)
+      ? categoria_ids
+      : (categoria_id ? [Number(categoria_id)] : []);
 
     return await prisma.producto.create({
       data: {
@@ -18,12 +23,20 @@ export class PrismaProductoRepository implements IProductoRepository {
           : { precio_oferta: null }),
         producto_codigo: data.producto_codigo ?? '',
 
-        ...(categoria_id ? { categoria: { connect: { categoria_id } } } : {}),
+        ...(idsCategorias.length > 0
+          ? {
+            productoCategorias: {
+              create: idsCategorias.map((id: number) => ({
+                categoria_id: Number(id)
+              }))
+            }
+          }
+          : {}),
 
         ...(imagenes && imagenes.length > 0
           ? {
             imagenes: {
-              create: imagenes.map((img, index) => ({
+              create: imagenes.map((img: any, index: number) => ({
                 url: img.url,
                 es_principal: img.es_principal ?? index === 0,
                 orden: img.orden ?? index + 1,
@@ -33,7 +46,11 @@ export class PrismaProductoRepository implements IProductoRepository {
           : {}),
       },
       include: {
-        categoria: true,
+        productoCategorias: {
+          include: {
+            categoria: true
+          }
+        },
         imagenes: {
           orderBy: [
             { es_principal: 'desc' },
@@ -49,12 +66,22 @@ export class PrismaProductoRepository implements IProductoRepository {
 
     let where: any = {};
 
+    // Filtrar productos que tengan al menos una categoría en estado Activo/Inactivo
     if (filtros.estado && filtros.estado !== 'todos') {
-      where.categoria = { estado: filtros.estado };
+      where.productoCategorias = {
+        some: {
+          categoria: { estado: filtros.estado }
+        }
+      };
     }
 
+    // Filtrar productos por ID de categoría
     if (filtros.categoria_id) {
-      where.categoria_id = Number(filtros.categoria_id);
+      where.productoCategorias = {
+        some: {
+          categoria_id: Number(filtros.categoria_id)
+        }
+      };
     }
 
     if (filtros.search) {
@@ -71,7 +98,11 @@ export class PrismaProductoRepository implements IProductoRepository {
         take: limit,
         orderBy: { nombre: 'asc' },
         include: {
-          categoria: true,
+          productoCategorias: {
+            include: {
+              categoria: true
+            }
+          },
           imagenes: {
             where: {
               es_principal: true
@@ -102,7 +133,11 @@ export class PrismaProductoRepository implements IProductoRepository {
     return await prisma.producto.findUnique({
       where: { producto_id: id },
       include: {
-        categoria: true,
+        productoCategorias: {
+          include: {
+            categoria: true
+          }
+        },
         imagenes: {
           select: {
             imagen_id: true,
@@ -130,44 +165,73 @@ export class PrismaProductoRepository implements IProductoRepository {
       imagenes,
       categoria,
       categoria_id,
+      categoria_ids,
+      productoCategorias,
       producto_id,
       ...restOfData
     } = data;
 
-    return await prisma.producto.update({
-      where: {
-        producto_id: Number(id)
-      },
-      data: {
-        ...restOfData,
-        precio: restOfData.precio ? new Prisma.Decimal(restOfData.precio) : undefined,
+    // Determinar si vienen nuevas categorías
+    const idsCategorias: number[] | null = categoria_ids && Array.isArray(categoria_ids)
+      ? categoria_ids.map(Number)
+      : (categoria_id ? [Number(categoria_id)] : null);
 
-        ...(restOfData.precio_oferta !== undefined
-          ? { precio_oferta: restOfData.precio_oferta ? new Prisma.Decimal(restOfData.precio_oferta) : null }
-          : {}),
+    return await prisma.$transaction(async (tx) => {
+      // 1. Si se actualizaron las categorías, eliminar las asignaciones anteriores
+      if (idsCategorias !== null) {
+        await tx.productoCategoria.deleteMany({
+          where: { producto_id: Number(id) }
+        });
+      }
 
-        ...(categoria_id ? { categoria: { connect: { categoria_id: Number(categoria_id) } } } : {}),
-
-        ...(imagenes ? {
-          imagenes: {
-            deleteMany: {},
-            create: imagenes.map((img: any, index: number) => ({
-              url: img.url,
-              es_principal: img.es_principal ?? index === 0,
-              orden: img.orden ?? index + 1,
-            })),
-          },
-        } : {}),
-      },
-      include: {
-        categoria: true,
-        imagenes: {
-          orderBy: [
-            { es_principal: 'desc' },
-            { orden: 'asc' }
-          ]
+      // 2. Actualizar producto y recrear relaciones
+      return await tx.producto.update({
+        where: {
+          producto_id: Number(id)
         },
-      },
+        data: {
+          ...restOfData,
+          precio: restOfData.precio ? new Prisma.Decimal(restOfData.precio) : undefined,
+
+          ...(restOfData.precio_oferta !== undefined
+            ? { precio_oferta: restOfData.precio_oferta ? new Prisma.Decimal(restOfData.precio_oferta) : null }
+            : {}),
+
+          ...(idsCategorias !== null && idsCategorias.length > 0
+            ? {
+              productoCategorias: {
+                create: idsCategorias.map((catId: number) => ({
+                  categoria_id: catId
+                }))
+              }
+            }
+            : {}),
+
+          ...(imagenes ? {
+            imagenes: {
+              deleteMany: {},
+              create: imagenes.map((img: any, index: number) => ({
+                url: img.url,
+                es_principal: img.es_principal ?? index === 0,
+                orden: img.orden ?? index + 1,
+              })),
+            },
+          } : {}),
+        },
+        include: {
+          productoCategorias: {
+            include: {
+              categoria: true
+            }
+          },
+          imagenes: {
+            orderBy: [
+              { es_principal: 'desc' },
+              { orden: 'asc' }
+            ]
+          },
+        },
+      });
     });
   }
 
@@ -176,19 +240,40 @@ export class PrismaProductoRepository implements IProductoRepository {
   }
 
   async createBulk(productos: CreateProductoDTO[]): Promise<number> {
-    const result = await prisma.producto.createMany({
-      data: productos.map(p => ({
-        nombre: p.nombre,
-        descripcion: p.descripcion ?? null,
-        precio: new Prisma.Decimal(p.precio),
-        stock: p.stock,
-        producto_codigo: p.producto_codigo ?? '',
-        categoria_id: p.categoria_id
-      })),
-      skipDuplicates: true
-    });
+    return await prisma.$transaction(async (tx) => {
+      let count = 0;
 
-    return result.count;
+      for (const p of productos) {
+        const { categoria_id, categoria_ids } = p as any;
+
+        const idsCategorias: number[] = categoria_ids && Array.isArray(categoria_ids)
+          ? categoria_ids
+          : (categoria_id ? [Number(categoria_id)] : []);
+
+        const nuevoProducto = await tx.producto.create({
+          data: {
+            nombre: p.nombre,
+            descripcion: p.descripcion ?? null,
+            precio: new Prisma.Decimal(p.precio),
+            stock: p.stock,
+            producto_codigo: p.producto_codigo ?? '',
+            ...(idsCategorias.length > 0
+              ? {
+                productoCategorias: {
+                  create: idsCategorias.map((id: number) => ({
+                    categoria_id: Number(id)
+                  }))
+                }
+              }
+              : {})
+          }
+        });
+
+        if (nuevoProducto) count++;
+      }
+
+      return count;
+    });
   }
 
   async deductStock(detalles: Array<{ producto_id: number; cantidad: number }>): Promise<void> {

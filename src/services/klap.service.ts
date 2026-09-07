@@ -27,16 +27,16 @@ export class KlapService {
                     { key: "notify_payment_user", value: "true" },
                     { key: "notify_payment_email_merchant", value: "javier.espinoza1989@gmail.com" },
                 ],
-                webhooks: {
-                    webhook_validation: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/validation",
-                    webhook_confirm: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/confirm",
-                    webhook_reject: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/reject"
-                },
                 // webhooks: {
-                //     webhook_validation: "https://libreriapaola.cl/api/webhooks/validation",
-                //     webhook_confirm: "https://libreriapaola.cl/api/webhooks/confirm",
-                //     webhook_reject: "https://libreriapaola.cl/api/webhooks/reject",
+                //     webhook_validation: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/validation",
+                //     webhook_confirm: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/confirm",
+                //     webhook_reject: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/reject"
                 // },
+                webhooks: {
+                    webhook_validation: "https://libreriapaola.cl/api/webhooks/validation",
+                    webhook_confirm: "https://libreriapaola.cl/api/webhooks/confirm",
+                    webhook_reject: "https://libreriapaola.cl/api/webhooks/reject",
+                },
             };
 
             const response = await axios.post(`${klapConfig.apiUrl}/payment-gateway/v1/orders`, body, {

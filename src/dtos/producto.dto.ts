@@ -12,7 +12,7 @@ export interface CreateProductoDTO {
   precio_oferta?: number;
   stock: number;
   producto_codigo?: string;
-  categoria_id: number;
+  categoria_ids: number[];
   imagenes?: ImagenDTO[];
 }
 
@@ -23,6 +23,6 @@ export interface UpdateProductoDTO {
   precio_oferta?: number;
   stock?: number;
   producto_codigo?: string;
-  categoria_id?: number;
+  categoria_ids?: number[];
   imagenes?: ImagenDTO[];
 }

@@ -31,21 +31,21 @@ enum EstadoPedido {
 // --- Modelos ---
 
 model Usuario {
-  usuario_id     Int      @id @default(autoincrement())
-  nombres        String   @db.VarChar(100)
-  apellidos      String   @db.VarChar(100)
-  telefono       String  @db.VarChar(20)
-  email          String   @unique @db.VarChar(150)
-  password_hash  String   @db.VarChar(255)
-  rol            Rol      @default(cliente)
-  fecha_registro DateTime @default(now()) @db.Timestamp(0)
-  reset_token       String?   @unique
+  usuario_id         Int       @id @default(autoincrement())
+  nombres            String    @db.VarChar(100)
+  apellidos          String    @db.VarChar(100)
+  telefono           String    @db.VarChar(20)
+  email              String    @unique @db.VarChar(150)
+  password_hash      String    @db.VarChar(255)
+  rol                Rol       @default(cliente)
+  fecha_registro     DateTime  @default(now()) @db.Timestamp(0)
+  reset_token        String?   @unique
   reset_token_expiry DateTime?
-  
+
   // Relaciones
-  pedidos        Pedido[]
-  favoritos      Favorito[]
-  carrito        Carrito[]  
+  pedidos   Pedido[]
+  favoritos Favorito[]
+  carrito   Carrito[]
 
   @@map("Usuarios") // Nombre real de la tabla en BD
 }
@@ -55,67 +55,77 @@ model Categoria {
   nombre       String          @db.VarChar(100)
   descripcion  String?         @db.Text
   estado       EstadoCategoria @default(Activo)
-  
+
   // Relaciones
-  productos    Producto[]
+  productoCategorias ProductoCategoria[]
 
   @@map("Categorias")
 }
 
+model ProductoCategoria {
+  producto_id  Int
+  categoria_id Int
+
+  producto  Producto  @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
+  categoria Categoria @relation(fields: [categoria_id], references: [categoria_id], onDelete: Cascade)
+
+  @@id([producto_id, categoria_id])
+  @@map("ProductosCategorias")
+}
+
 model Producto {
-  producto_id  Int      @id @default(autoincrement())
-  producto_codigo String @unique @db.VarChar(250)
-  nombre       String   @db.VarChar(150)
-  descripcion  String?  @db.Text
-  precio       Decimal  @db.Decimal(10, 2)
+  producto_id     Int      @id @default(autoincrement())
+  producto_codigo String   @unique @db.VarChar(250)
+  nombre          String   @db.VarChar(150)
+  descripcion     String?  @db.Text
+  precio          Decimal  @db.Decimal(10, 2)
   precio_oferta   Decimal? @db.Decimal(10, 2)
-  stock        Int      @default(0)
-  categoria_id Int?
-  
+  stock           Int      @default(0)
+
   // Relaciones
-  categoria    Categoria? @relation(fields: [categoria_id], references: [categoria_id])
-  detalles     ProductoPedido[]
-  favoritos       Favorito[]  
-  carrito         Carrito[]   
-  imagenes      ProductoImagen[]
+  productoCategorias ProductoCategoria[] 
+  detalles           ProductoPedido[]
+  favoritos          Favorito[]
+  carrito            Carrito[]
+  imagenes           ProductoImagen[]
 
   @@map("Productos")
 }
 
 model ProductoImagen {
-  imagen_id    Int      @id @default(autoincrement())
-  url          String @db.MediumText
-  es_principal Boolean  @default(false)
-  orden        Int      @default(0)
+  imagen_id    Int     @id @default(autoincrement())
+  url          String  @db.MediumText
+  es_principal Boolean @default(false)
+  orden        Int     @default(0)
 
-  producto_id  Int
-  producto     Producto @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
+  producto_id Int
+  producto    Producto @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
 
   @@index([producto_id])
 }
 
 model Pedido {
-  pedido_id    Int          @id @default(autoincrement())
-  klap_order_id  String?   @db.VarChar(64) 
-  usuario_id   Int?
-  fecha_pedido DateTime     @default(now()) @db.Timestamp(0)
-  fecha_cambio_estado DateTime? 
-  estado       EstadoPedido @default(Pendiente)
-  total        Decimal      @default(0) @db.Decimal(10, 2)
+  pedido_id           Int          @id @default(autoincrement())
+  klap_order_id       String?      @db.VarChar(64)
+  usuario_id          Int?
+  fecha_pedido        DateTime     @default(now()) @db.Timestamp(0)
+  fecha_cambio_estado DateTime?
+  estado              EstadoPedido @default(Pendiente)
+  total               Decimal      @default(0) @db.Decimal(10, 2)
 
   // Relaciones
-  usuario      Usuario?     @relation(fields: [usuario_id], references: [usuario_id])
-  detalles     ProductoPedido[]
+  usuario  Usuario?         @relation(fields: [usuario_id], references: [usuario_id])
+  detalles ProductoPedido[]
 
   @@map("Pedidos")
 }
 
 model ProductoPedido {
-  pedido_id       Int
-  producto_id     Int
-  cantidad        Int
-  precio_unitario Decimal @db.Decimal(10, 2)
-  precio_unitario_oferta   Decimal? @db.Decimal(10, 2)
+  pedido_id              Int
+  producto_id            Int
+  cantidad               Int
+  precio_unitario        Decimal  @db.Decimal(10, 2)
+  precio_unitario_oferta Decimal? @db.Decimal(10, 2)
 
   // Relaciones
   pedido   Pedido   @relation(fields: [pedido_id], references: [pedido_id], onDelete: Cascade)
@@ -127,27 +137,26 @@ model ProductoPedido {
 }
 
 model Favorito {
-  favorito_id    Int       @id @default(autoincrement())
+  favorito_id    Int      @id @default(autoincrement())
   usuario_id     Int
   producto_id    Int
   fecha_agregado DateTime @default(now())
 
-  usuario        Usuario   @relation(fields: [usuario_id], references: [usuario_id], onDelete: Cascade)
-  producto       Producto  @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
+  usuario  Usuario  @relation(fields: [usuario_id], references: [usuario_id], onDelete: Cascade)
+  producto Producto @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
 
   @@unique([usuario_id, producto_id])
 }
 
 model Carrito {
-  carrito_id     Int       @id @default(autoincrement())
+  carrito_id     Int      @id @default(autoincrement())
   usuario_id     Int
   producto_id    Int
-  cantidad       Int       @default(1)
+  cantidad       Int      @default(1)
   fecha_agregado DateTime @default(now())
 
-  usuario        Usuario   @relation(fields: [usuario_id], references: [usuario_id], onDelete: Cascade)
-  producto       Producto  @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
+  usuario  Usuario  @relation(fields: [usuario_id], references: [usuario_id], onDelete: Cascade)
+  producto Producto @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
 
   @@unique([usuario_id, producto_id])
 }
-

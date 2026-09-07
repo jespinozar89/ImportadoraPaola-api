@@ -31,14 +31,23 @@ export class PrismaFavoritoRepository implements IFavoritoRepository {
       where: { 
         usuario_id,
         producto: {
-          categoria: {
-            estado: 'Activo'
+          productoCategorias: {
+            some: {
+              categoria: {
+                estado: 'Activo'
+              }
+            }
           }
         }
       },
       include: {
         producto: {
           include: {
+            productoCategorias: {
+              include: {
+                categoria: true
+              }
+            },
             imagenes: {
               where: {
                 es_principal: true

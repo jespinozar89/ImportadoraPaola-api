@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 import csv from 'csv-parser';
 import { CreateProductoDTO, UpdateProductoDTO } from '../dtos/producto.dto';
 import { IProductoRepository } from '../interfaces/producto.repository.interface';
-import { Prisma, Producto } from '@prisma/client';
+import { Producto } from '@prisma/client';
 import { CargaMasivaResult, ProductoCsvRow } from '@/dtos/archivoCSV.dto';
 
 export class ProductoService {
@@ -25,6 +25,9 @@ export class ProductoService {
 
   async findById(id: number) {
     const producto = await this.productoRepository.findById(id);
+    if (!producto) {
+      throw new Error(`Producto con ID ${id} no encontrado.`);
+    }
     return producto;
   }
 
@@ -97,8 +100,9 @@ export class ProductoService {
   private mapRowToDto(row: ProductoCsvRow, categoriaId: number): CreateProductoDTO {
     const precioLimpio = row.VENTA ? row.VENTA.toString().replace(/[^0-9]/g, '') : '0';
 
-    if (row.CODCATEGORIA)
+    if (row.CODCATEGORIA) {
       categoriaId = Number(row.CODCATEGORIA);
+    }
 
     return {
       producto_codigo: row.BARRA,
@@ -106,7 +110,7 @@ export class ProductoService {
       descripcion: row.PRODUCTO,
       precio: parseInt(precioLimpio, 10),
       stock: 1,
-      categoria_id: categoriaId
+      categoria_ids: categoriaId > 0 ? [categoriaId] : [] // <-- Soporta lista de categorías
     };
   }
 

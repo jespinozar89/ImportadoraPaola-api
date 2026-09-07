@@ -236,7 +236,11 @@ export class PrismaPedidoRepository implements IPedidoRepository {
           include: {
             producto: {
               include: {
-                categoria: true,
+                productoCategorias: {
+                  include: {
+                    categoria: true
+                  }
+                },
                 imagenes: {
                   where: {
                     es_principal: true
@@ -272,7 +276,11 @@ export class PrismaPedidoRepository implements IPedidoRepository {
           include: {
             producto: {
               include: {
-                categoria: true,
+                productoCategorias: {
+                  include: {
+                    categoria: true
+                  }
+                },
                 imagenes: {
                   where: {
                     es_principal: true
