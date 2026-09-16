@@ -1,8 +1,6 @@
 import { CreatePedidoDTO, EstadoPedido } from '../dtos/pedido.dto';
 import { IPedidoRepository } from '../interfaces/pedido.repository.interface';
-import { Pedido, Prisma, PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from "../config/prisma";
 
 export class PedidoService {
   constructor(private pedidoRepository: IPedidoRepository) { }
@@ -16,7 +14,6 @@ export class PedidoService {
     const detallesProcesados = [];
 
     for (const item of data.detalles) {
-
       const producto = await prisma.producto.findUnique({
         where: { producto_id: item.producto_id }
       });
@@ -25,8 +22,8 @@ export class PedidoService {
         throw new Error(`El producto con ID ${item.producto_id} no existe.`);
       }
 
-      const precioEfectivo = producto.precio_oferta && Number(producto.precio_oferta) > 0 
-        ? Number(producto.precio_oferta) 
+      const precioEfectivo = producto.precio_oferta && Number(producto.precio_oferta) > 0
+        ? Number(producto.precio_oferta)
         : Number(producto.precio);
 
       totalPedido += precioEfectivo * item.cantidad;
@@ -35,15 +32,19 @@ export class PedidoService {
         producto_id: producto.producto_id,
         cantidad: item.cantidad,
         precio_unitario: Number(producto.precio),
-        precio_unitario_oferta: item.precio_unitario_oferta ? Number(item.precio_unitario_oferta) : null,
+        precio_unitario_oferta: producto.precio_oferta ? Number(producto.precio_oferta) : null,
       });
     }
 
     return await this.pedidoRepository.createTransaction({
-      usuario_id: data.usuario_id,
+      usuario_id: data.usuario_id ?? null,
+      nombre_contacto: data.nombre_contacto,
+      email_contacto: data.email_contacto,
+      telefono_contacto: data.telefono_contacto,
+      direccion_envio: data.direccion_envio,
       estado: data.estado,
       total: totalPedido,
-      klap_order_id: data.klap_order_id,
+      klap_order_id: data.klap_order_id ?? null,
       detalles: detallesProcesados
     });
   }
@@ -73,7 +74,7 @@ export class PedidoService {
   }
 
   async updateStatus(id: number, estado: EstadoPedido) {
-    return await this.pedidoRepository.updateStatus(id,estado);
+    return await this.pedidoRepository.updateStatus(id, estado);
   }
 
   async updateKlapOrderId(oldKlapOrderId: string, newKlapOrderId: string): Promise<any> {

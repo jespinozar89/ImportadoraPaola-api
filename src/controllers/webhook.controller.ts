@@ -40,8 +40,8 @@ export class WebhookController {
             await this.webhookService.confirmOrderAndDeductStock(pedido.detalles);
             const order = await this.webhookService.updateKlapOrderId(reference_id, order_id);
 
-            const emailUsuario = order.user?.email || (order as any).usuario?.email;
-            const nombreUsuario = order.user?.nombres || (order as any).usuario?.nombres;
+            const emailUsuario = order.email_contacto || order.user?.email || (order as any).usuario?.email;
+            const nombreUsuario = order.nombre_contacto || order.user?.nombres || (order as any).usuario?.nombres;
 
             await this.correoService.enviarConfirmacionPedido(
                 emailUsuario,

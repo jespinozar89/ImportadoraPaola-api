@@ -1,7 +1,6 @@
 import { DetallePedidoDTO } from "@/dtos/pedido.dto";
 import { PedidoService } from "./pedido.service";
 import { ProductoService } from "./producto.service";
-import { Pedido } from "@prisma/client";
 
 export class WebhookService {
 

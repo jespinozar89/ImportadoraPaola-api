@@ -5,7 +5,6 @@ import { Rol } from "@prisma/client";
 
 const router = Router();
 
-// RUTAS PÚBLICAS (Lectura)
 /**
  * @openapi
  * /api/categorias:
@@ -39,8 +38,6 @@ router.get("/", categoriaController.findAll.bind(categoriaController));
  */
 router.get("/:id", categoriaController.findById.bind(categoriaController));
 
-// RUTAS PROTEGIDAS (Modificación)
-// Requieren Token JWT y Rol de Administrador
 /**
  * @openapi
  * /api/categorias:

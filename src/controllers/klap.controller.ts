@@ -14,8 +14,11 @@ export class KlapController {
         const { referenceId, user, items, total } = req.body;
 
         try {
-            const userId = req.usuarioId;
-            if (!userId) throw new Error("Usuario no identificado");
+            const userId = req.usuarioId || null;
+
+            if (!user || !user.email || !user.first_name || !user.last_name) {
+                return res.status(400).json({ error: "Los datos del comprador (first_name, last_name, email) son requeridos." });
+            }
 
             const order = await this.klapService.createOrder(referenceId, user, items, total);
             res.json(order);
@@ -28,9 +31,6 @@ export class KlapController {
         const { orderId } = req.params;
 
         try {
-            const userId = req.usuarioId;
-            if (!userId) throw new Error("Usuario no identificado");
-
             if (!orderId || typeof orderId !== 'string') {
                 return res.status(400).json({ error: "orderId es requerido y debe ser un string" });
             }
@@ -47,10 +47,8 @@ export class KlapController {
         const { referenceId, amount } = req.body;
 
         try {
-            const userId = req.usuarioId;
-            const userRol = req.rol;
-
-            if (!userId) throw new Error("Usuario no identificado");
+            const userId = req.usuarioId || null;
+            const userRol = req.rol; 
 
             if (!orderId || typeof orderId !== 'string') {
                 return res.status(400).json({ error: "orderId es requerido y debe ser un string" });
@@ -62,15 +60,27 @@ export class KlapController {
                 return res.status(400).json({ error: "amount es requerido y debe ser un número" });
             }
 
+            if (!userId || !userRol) {
+                return res.status(403).json({ error: "Los usuarios invitados no pueden solicitar reembolsos directamente. Contacte a soporte." });
+            }
+
             const pedido = await this.pedidoService.findByKlapId(orderId);
             if (!pedido) throw new Error("Pedido no encontrado");
 
-            if (pedido.estado === EstadoPedido.Entregado)
-                throw new Error("El pedido ya ha sido entregado y no puede ser cancelado.");
+            if (pedido.estado === EstadoPedido.Entregado) {
+                throw new Error("El pedido ya ha sido entregado y no puede ser cancelado ni reembolsado.");
+            }
 
             if (userRol === 'cliente') {
-                if (pedido.usuario_id !== userId || pedido.estado !== EstadoPedido.Pendiente)
-                    throw new Error("Error realizando reembolso en Klap");
+                if (pedido.usuario_id !== userId) {
+                    return res.status(403).json({ error: "No tienes permiso para solicitar un reembolso de este pedido." });
+                }
+
+                if (pedido.estado !== EstadoPedido.Pendiente) {
+                    return res.status(400).json({ error: "Solo se pueden reembolsar pedidos en estado Pendiente." });
+                }
+            } else if (userRol !== 'administrador') {
+                return res.status(403).json({ error: "No tienes permisos suficientes para realizar esta acción." });
             }
 
             const refund = await this.klapService.refundOrder(orderId, referenceId, amount);

@@ -46,8 +46,26 @@ model Usuario {
   pedidos   Pedido[]
   favoritos Favorito[]
   carrito   Carrito[]
+  direcciones DireccionUsuario[]
 
-  @@map("Usuarios") // Nombre real de la tabla en BD
+  @@map("Usuarios") 
+}
+
+model DireccionUsuario {
+  direccion_id      Int     @id @default(autoincrement())
+  usuario_id        Int
+  calle             String  @db.VarChar(150)
+  numero            String  @db.VarChar(20)
+  departamento      String? @db.VarChar(50)
+  comuna            String  @db.VarChar(100)
+  region            String  @db.VarChar(100)
+  es_predeterminada Boolean @default(false)
+
+  // Relación con el usuario
+  usuario Usuario @relation(fields: [usuario_id], references: [usuario_id], onDelete: Cascade)
+
+  @@index([usuario_id])
+  @@map("DireccionesUsuarios")
 }
 
 model Categoria {
@@ -113,6 +131,12 @@ model Pedido {
   estado              EstadoPedido @default(Pendiente)
   total               Decimal      @default(0) @db.Decimal(10, 2)
 
+  // Datos de usuario y Invitado
+  nombre_contacto     String       @db.VarChar(150)
+  email_contacto      String       @db.VarChar(150)
+  telefono_contacto   String       @db.VarChar(50)
+  direccion_envio     String       @db.Text
+
   // Relaciones
   usuario  Usuario?         @relation(fields: [usuario_id], references: [usuario_id])
   detalles ProductoPedido[]
@@ -131,7 +155,6 @@ model ProductoPedido {
   pedido   Pedido   @relation(fields: [pedido_id], references: [pedido_id], onDelete: Cascade)
   producto Producto @relation(fields: [producto_id], references: [producto_id])
 
-  // Llave primaria compuesta (N:M)
   @@id([pedido_id, producto_id])
   @@map("ProductosPedido")
 }

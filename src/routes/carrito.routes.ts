@@ -4,7 +4,6 @@ import { authenticateToken } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// Todas las rutas requieren estar logueado
 router.use(authenticateToken);
 
 /**

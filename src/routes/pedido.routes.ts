@@ -1,11 +1,9 @@
 import { Router } from "express";
 import { pedidoController } from "../config/container";
-import { authenticateToken, authorizeRole } from "../middlewares/auth.middleware";
+import { authenticateToken, authorizeRole, optionalAuth } from "../middlewares/auth.middleware";
 import { Rol } from "@prisma/client";
 
 const router = Router();
-
-router.use(authenticateToken);
 
 /**
  * @openapi
@@ -38,7 +36,11 @@ router.use(authenticateToken);
  *       400:
  *         description: Error de validación
  */
-router.post("/", pedidoController.create.bind(pedidoController));
+router.post(
+  "/", 
+  optionalAuth, 
+  pedidoController.create.bind(pedidoController)
+);
 
 /**
  * @openapi
@@ -73,7 +75,12 @@ router.post("/", pedidoController.create.bind(pedidoController));
  *       404:
  *         description: Pedido o usuario no encontrado
  */
-router.post("/correo-status", authorizeRole([Rol.administrador]), pedidoController.CorreoStatus.bind(pedidoController));
+router.post(
+  "/correo-status", 
+  authenticateToken, 
+  authorizeRole([Rol.administrador]), 
+  pedidoController.CorreoStatus.bind(pedidoController)
+);
 
 
 /**
@@ -113,7 +120,12 @@ router.post("/correo-status", authorizeRole([Rol.administrador]), pedidoControll
  *       404:
  *         description: Pedido no encontrado
  */
-router.put("/:id", authorizeRole([Rol.administrador,Rol.cliente]), pedidoController.updateStatus.bind(pedidoController));
+router.put(
+  "/:id", 
+  authenticateToken, 
+  authorizeRole([Rol.administrador, Rol.cliente]), 
+  pedidoController.updateStatus.bind(pedidoController)
+);
 
 /**
  * @openapi
@@ -128,7 +140,11 @@ router.put("/:id", authorizeRole([Rol.administrador,Rol.cliente]), pedidoControl
  *       200:
  *         description: Lista de pedidos del usuario autenticado
  */
-router.get("/mis-pedidos", pedidoController.findMyOrders.bind(pedidoController));
+router.get(
+  "/mis-pedidos", 
+  authenticateToken, 
+  pedidoController.findMyOrders.bind(pedidoController)
+);
 
 /**
  * @openapi
@@ -158,6 +174,7 @@ router.get("/mis-pedidos", pedidoController.findMyOrders.bind(pedidoController))
  */
 router.get(
   "/mi-pedido/:id",
+  authenticateToken,
   authorizeRole([Rol.cliente]),
   pedidoController.findOrderByUserIdAndPedidoId.bind(pedidoController)
 );
@@ -184,7 +201,12 @@ router.get(
  *       404:
  *         description: Pedido no encontrado
  */
-router.get("/:id", authorizeRole([Rol.administrador]), pedidoController.findById.bind(pedidoController));
+router.get(
+  "/:id", 
+  authenticateToken, 
+  authorizeRole([Rol.administrador]), 
+  pedidoController.findById.bind(pedidoController)
+);
 
 /**
  * @openapi
@@ -202,9 +224,10 @@ router.get("/:id", authorizeRole([Rol.administrador]), pedidoController.findById
  *         description: No autorizado
  */
 router.get(
-    "/",
-    authorizeRole([Rol.administrador]),
-    pedidoController.findAll.bind(pedidoController)
+  "/",
+  authenticateToken,
+  authorizeRole([Rol.administrador]),
+  pedidoController.findAll.bind(pedidoController)
 );
 
 export default router;

@@ -1,8 +1,12 @@
 export interface CreatePedidoDTO {
-  usuario_id: number;
+  usuario_id?: number | null;
+  nombre_contacto: string;
+  email_contacto: string;
+  telefono_contacto: string;
+  direccion_envio: string;
   estado: EstadoPedido;
   total: number;
-  klap_order_id?: string | undefined;
+  klap_order_id?: string | null;
   detalles: DetallePedidoDTO[];
 }
 

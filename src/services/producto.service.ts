@@ -110,7 +110,7 @@ export class ProductoService {
       descripcion: row.PRODUCTO,
       precio: parseInt(precioLimpio, 10),
       stock: 1,
-      categoria_ids: categoriaId > 0 ? [categoriaId] : [] // <-- Soporta lista de categorías
+      categoria_ids: categoriaId > 0 ? [categoriaId] : [] 
     };
   }
 

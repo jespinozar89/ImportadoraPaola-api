@@ -9,7 +9,6 @@ export class PrismaProductoRepository implements IProductoRepository {
   async create(data: CreateProductoDTO): Promise<Producto> {
     const { imagenes, categoria_id, categoria_ids, ...restOfData } = data as any;
 
-    // Soportar tanto categoria_ids: [1, 2] como un categoria_id individual
     const idsCategorias: number[] = categoria_ids && Array.isArray(categoria_ids)
       ? categoria_ids
       : (categoria_id ? [Number(categoria_id)] : []);
@@ -66,7 +65,6 @@ export class PrismaProductoRepository implements IProductoRepository {
 
     let where: any = {};
 
-    // Filtrar productos que tengan al menos una categoría en estado Activo/Inactivo
     if (filtros.estado && filtros.estado !== 'todos') {
       where.productoCategorias = {
         some: {
@@ -75,7 +73,6 @@ export class PrismaProductoRepository implements IProductoRepository {
       };
     }
 
-    // Filtrar productos por ID de categoría
     if (filtros.categoria_id) {
       where.productoCategorias = {
         some: {
@@ -171,20 +168,17 @@ export class PrismaProductoRepository implements IProductoRepository {
       ...restOfData
     } = data;
 
-    // Determinar si vienen nuevas categorías
     const idsCategorias: number[] | null = categoria_ids && Array.isArray(categoria_ids)
       ? categoria_ids.map(Number)
       : (categoria_id ? [Number(categoria_id)] : null);
 
     return await prisma.$transaction(async (tx) => {
-      // 1. Si se actualizaron las categorías, eliminar las asignaciones anteriores
       if (idsCategorias !== null) {
         await tx.productoCategoria.deleteMany({
           where: { producto_id: Number(id) }
         });
       }
 
-      // 2. Actualizar producto y recrear relaciones
       return await tx.producto.update({
         where: {
           producto_id: Number(id)
@@ -276,19 +270,24 @@ export class PrismaProductoRepository implements IProductoRepository {
     });
   }
 
-  async deductStock(detalles: Array<{ producto_id: number; cantidad: number }>): Promise<void> {
-    await prisma.$transaction(
+  async deductStock(
+    detalles: Array<{ producto_id: number; cantidad: number }>,
+    tx?: Prisma.TransactionClient
+  ): Promise<void> {
+    const client = tx || prisma;
+
+    await Promise.all(
       detalles.map((item) =>
-        prisma.producto.update({
+        client.producto.update({
           where: {
-            producto_id: item.producto_id,
+            producto_id: Number(item.producto_id),
             stock: {
-              gte: item.cantidad
+              gte: Number(item.cantidad)
             }
           },
           data: {
             stock: {
-              decrement: item.cantidad
+              decrement: Number(item.cantidad)
             }
           }
         })

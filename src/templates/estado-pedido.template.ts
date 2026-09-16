@@ -7,7 +7,6 @@ import { getBaseLayout } from './base-layout';
  */
 export const getEstadoPedidoTemplate = (nombreCliente: string, nuevoEstado: string, idPedido: string) => {
   
-  // Configuración de estilos según el estado
   const config: any = {
     'EnPreparacion': { color: '#0dcaf0', texto: '¡Buenas noticias! Estamos preparando tus productos.', estado: 'Preparando' },
     'Listo':     { color: '#6610f2', texto: 'Tu pedido ya está listo para ser retirado.', estado: 'Listo para retirar'},

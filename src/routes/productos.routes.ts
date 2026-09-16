@@ -6,7 +6,6 @@ import { Rol } from "@prisma/client";
 
 const router = Router();
 
-// RUTAS PÚBLICAS (Lectura)
 
 /**
  * @openapi
@@ -145,7 +144,6 @@ router.get("/:id", productoController.findById.bind(productoController));
 
 
 
-// RUTAS PROTEGIDAS (Modificación - Solo Administrador)
 /**
  * @openapi
  * /api/productos:

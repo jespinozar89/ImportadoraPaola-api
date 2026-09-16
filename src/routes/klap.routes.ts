@@ -1,9 +1,8 @@
-import { authenticateToken } from "../middlewares/auth.middleware";
+import { authenticateToken, optionalAuth } from "../middlewares/auth.middleware";
 import { klapController } from "../config/container";
 import { Router } from "express";
 
 const router = Router();
-router.use(authenticateToken);
 
 /**
  * @openapi
@@ -97,7 +96,11 @@ router.use(authenticateToken);
  *       500:
  *         description: Error interno al crear la orden
  */
-router.post("/pay", klapController.CreateOrder.bind(klapController));
+router.post(
+  "/pay", 
+  optionalAuth, 
+  klapController.CreateOrder.bind(klapController)
+);
 
 /**
  * @openapi
@@ -126,7 +129,11 @@ router.post("/pay", klapController.CreateOrder.bind(klapController));
  *       500:
  *         description: Error interno al consultar el estado de la orden
  */
-router.get("/status/:orderId", klapController.GetOrderStatus.bind(klapController));
+router.get(
+  "/status/:orderId", 
+  optionalAuth, 
+  klapController.GetOrderStatus.bind(klapController)
+);
 
 /**
  * @openapi
@@ -201,6 +208,10 @@ router.get("/status/:orderId", klapController.GetOrderStatus.bind(klapController
  *       500:
  *         description: Error interno al procesar el reembolso
  */
-router.post("/orders/:orderId/refund", klapController.RefundOrder.bind(klapController));
+router.post(
+  "/orders/:orderId/refund", 
+  authenticateToken, 
+  klapController.RefundOrder.bind(klapController)
+);
 
 export default router;

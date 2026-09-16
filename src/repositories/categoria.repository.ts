@@ -13,7 +13,7 @@ export class PrismaCategoriaRepository implements ICategoriaRepository {
             include: {
                 _count: {
                     select: {
-                        productoCategorias: true // <-- CAMBIADO: Antes era 'productos'
+                        productoCategorias: true 
                     }
                 }
             }
@@ -21,7 +21,7 @@ export class PrismaCategoriaRepository implements ICategoriaRepository {
 
         return categorias.map(cat => ({
             ...cat,
-            totalProductos: cat._count.productoCategorias // <-- CAMBIADO: Usamos el nuevo conteo
+            totalProductos: cat._count.productoCategorias 
         }));
     }
 

@@ -9,20 +9,40 @@ interface DatosPedido {
 }
 
 export const getConfirmacionPedidoTemplate = (data: DatosPedido) => {
-  // Generamos las filas de la tabla dinámicamente
-  const filasProductos = data.productos.map(item => `
-    <tr>
-      <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.nombre}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.cantidad}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
-        ${(item.precio_unitario_oferta != null && item.precio_unitario_oferta > 0)
-            ? `<span style="text-decoration: line-through; color: #888; font-size: 12px; margin-right: 5px;">$${item.precio_unitario.toLocaleString('es-CL')}</span>
-            <strong style="color: #e53e3e;">$${item.precio_unitario_oferta.toLocaleString('es-CL')}</strong>`
+  const filasProductos = data.productos.map(item => {
+    // Determinar si aplica precio de oferta
+    const tieneOferta = item.precio_unitario_oferta != null && item.precio_unitario_oferta > 0;
+    const precioEfectivo = tieneOferta ? item.precio_unitario_oferta! : item.precio_unitario;
+    const subtotalItem = precioEfectivo * item.cantidad;
+
+    return `
+      <tr>
+        <!-- 1. Producto -->
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: left;">
+          ${item.nombre}
+        </td>
+
+        <!-- 2. Precio Unitario -->
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
+          ${tieneOferta
+            ? `<span style="text-decoration: line-through; color: #888; font-size: 12px; display: block;">$${item.precio_unitario.toLocaleString('es-CL')}</span>
+               <strong style="color: #e53e3e;">$${item.precio_unitario_oferta!.toLocaleString('es-CL')}</strong>`
             : `$${item.precio_unitario.toLocaleString('es-CL')}`
           }
-      </td>
-    </tr>
-  `).join('');
+        </td>
+
+        <!-- 3. Cantidad -->
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">
+          ${item.cantidad}
+        </td>
+
+        <!-- 4. Subtotal -->
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">
+          $${subtotalItem.toLocaleString('es-CL')}
+        </td>
+      </tr>
+    `;
+  }).join('');
 
   const content = `
     <p>¡Hola <strong>${data.usuario_nombre.split(" ")[0]}</strong>!</p>
@@ -32,8 +52,9 @@ export const getConfirmacionPedidoTemplate = (data: DatosPedido) => {
       <thead>
         <tr style="background-color: #f8f9fa;">
           <th style="padding: 10px; text-align: left;">Producto</th>
-          <th style="padding: 10px; text-align: center;">Cant.</th>
           <th style="padding: 10px; text-align: right;">Precio</th>
+          <th style="padding: 10px; text-align: center;">Cant.</th>
+          <th style="padding: 10px; text-align: right;">Subtotal</th>
         </tr>
       </thead>
       <tbody>
@@ -41,7 +62,7 @@ export const getConfirmacionPedidoTemplate = (data: DatosPedido) => {
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="2" style="padding: 20px 10px 10px; text-align: right; font-weight: bold;">Total a pagar:</td>
+          <td colspan="3" style="padding: 20px 10px 10px; text-align: right; font-weight: bold;">Total a pagar:</td>
           <td style="padding: 20px 10px 10px; text-align: right; font-weight: bold; color: #0d6efd; font-size: 18px;">
             $${data.total.toLocaleString('es-CL')}
           </td>
@@ -64,7 +85,7 @@ export const getConfirmacionPedidoTemplate = (data: DatosPedido) => {
       <p><strong>Horario de atención:</strong><br>
         Lunes a viernes: 9:00 a 19:15 hrs<br>
         Sábado: 10:00 a 17:45 hrs
-        </p>
+      </p>
     </div>
   `;
 

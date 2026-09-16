@@ -11,6 +11,9 @@ import favoritoRoutes from "./routes/favorito.routes";
 import carritoRoutes from "./routes/carrito.routes";
 import klapRoutes from "./routes/klap.routes";
 import webhookRoutes from "./routes/webhook.routes";
+import direccionRoutes from "./routes/direccion.routes";
+import ubicacionesRoutes from "./routes/ubicaciones.routes";
+import tarifaRoutes from "./routes/tarifa.routes";
 
 dotenv.config();
 
@@ -49,6 +52,9 @@ app.use("/api/favoritos", favoritoRoutes);
 app.use("/api/carrito", carritoRoutes);
 app.use("/api/klap", klapRoutes);
 app.use("/api/webhooks", webhookRoutes); 
+app.use("/api/direcciones", direccionRoutes);
+app.use('/api/ubicaciones', ubicacionesRoutes);
+app.use('/api/tarifas', tarifaRoutes);
 
 const PORT = process.env.PORT || 3000;
 

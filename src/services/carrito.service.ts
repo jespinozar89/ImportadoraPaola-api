@@ -1,8 +1,6 @@
 import { ICarritoRepository } from '../interfaces/carrito.repository.interface';
 import { AddItemToCartDTO, UpdateItemQuantityDTO } from '../dtos/carrito.dto';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from "../config/prisma";
 
 export class CarritoService {
     constructor(private carritoRepository: ICarritoRepository) { }

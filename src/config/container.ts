@@ -28,6 +28,11 @@ import { PrismaCarritoRepository } from "../repositories/carrito.repository";
 import { CarritoService } from "../services/carrito.service";
 import { CarritoController } from "../controllers/carrito.controller";
 
+// Módulo de Direcciones
+import { PrismaDireccionRepository } from "../repositories/direccion.repository";
+import { DireccionService } from "../services/direccion.service";
+import { DireccionController } from "../controllers/direccion.controller";
+
 //Correo
 import { CorreoService } from "../services/correo.service";
 
@@ -38,6 +43,7 @@ import { KlapController } from "../controllers/klap.controller";
 //webhook
 import { WebhookController } from '../controllers/webhook.controller';
 import { WebhookService } from "../services/webhook.service";
+import { TarifaController } from "@/controllers/tarifa.controller";
 
 // --- Correo Module Instances ---
 const correoService = new CorreoService();
@@ -80,6 +86,11 @@ const carritoRepository = new PrismaCarritoRepository();
 const carritoService = new CarritoService(carritoRepository);
 const carritoController = new CarritoController(carritoService);
 
+// --- Direccion Module Instances ---
+const direccionRepository = new PrismaDireccionRepository();
+const direccionService = new DireccionService(direccionRepository);
+const direccionController = new DireccionController(direccionService);
+
 export { 
     authController, 
     categoriaController,
@@ -88,5 +99,6 @@ export {
     favoritoController,
     carritoController,
     klapController,
-    webhookController
+    webhookController,
+    direccionController
 };

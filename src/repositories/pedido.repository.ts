@@ -7,26 +7,68 @@ import { PaginatedResult } from "@/dtos/paginated.dto";
 export class PrismaPedidoRepository implements IPedidoRepository {
 
   async createTransaction(data: CreatePedidoDTO): Promise<Pedido> {
+    return await prisma.$transaction(async (tx) => {
+      const productoIds = data.detalles.map((d) => d.producto_id);
 
-    return await prisma.pedido.create({
-      data: {
-        usuario_id: data.usuario_id,
-        fecha_pedido: new Date(),
-        fecha_cambio_estado: new Date(),
-        estado: data.estado as EstadoPedido,
-        total: data.total,
-        klap_order_id: data.klap_order_id ?? null,
-        detalles: {
-          create: data.detalles.map(d => ({
-            producto_id: d.producto_id,
-            cantidad: d.cantidad,
-            precio_unitario: d.precio_unitario,
-            precio_unitario_oferta: d.precio_unitario_oferta
-              ? new Prisma.Decimal(d.precio_unitario_oferta)
-              : null,
-          }))
+      const productosDB = await tx.producto.findMany({
+        where: {
+          producto_id: { in: productoIds },
+        },
+        select: {
+          producto_id: true,
+          nombre: true,
+          stock: true,
+          precio: true,
+        },
+      });
+
+      if (productosDB.length !== productoIds.length) {
+        throw new Error("Uno o más productos seleccionados ya no existen.");
+      }
+
+      for (const detalle of data.detalles) {
+        const producto = productosDB.find((p) => p.producto_id === detalle.producto_id);
+
+        if (!producto) {
+          throw new Error(`Producto ID ${detalle.producto_id} no encontrado.`);
+        }
+
+        if (producto.stock < detalle.cantidad) {
+          throw new Error(
+            `Stock insuficiente para "${producto.nombre}". Disponible: ${producto.stock}, Solicitado: ${detalle.cantidad}`
+          );
         }
       }
+
+      const nuevoPedido = await tx.pedido.create({
+        data: {
+          usuario_id: data.usuario_id ?? null,
+          nombre_contacto: data.nombre_contacto,
+          email_contacto: data.email_contacto,
+          telefono_contacto: data.telefono_contacto,
+          direccion_envio: data.direccion_envio,
+          fecha_pedido: new Date(),
+          fecha_cambio_estado: new Date(),
+          estado: data.estado as EstadoPedido,
+          total: new Prisma.Decimal(data.total),
+          klap_order_id: data.klap_order_id ?? null,
+          detalles: {
+            create: data.detalles.map((d) => ({
+              producto_id: d.producto_id,
+              cantidad: d.cantidad,
+              precio_unitario: new Prisma.Decimal(d.precio_unitario!),
+              precio_unitario_oferta: d.precio_unitario_oferta
+                ? new Prisma.Decimal(d.precio_unitario_oferta)
+                : null,
+            })),
+          },
+        },
+        include: {
+          detalles: true,
+        },
+      });
+
+      return nuevoPedido;
     });
   }
 
@@ -51,6 +93,8 @@ export class PrismaPedidoRepository implements IPedidoRepository {
         {
           OR: [
             ...(!isNaN(Number(searchTerms)) ? [{ pedido_id: Number(searchTerms) }] : []),
+            { nombre_contacto: { contains: searchTerms } },
+            { email_contacto: { contains: searchTerms } },
             {
               usuario: {
                 AND: palabras.map((palabra: string) => ({
@@ -82,6 +126,10 @@ export class PrismaPedidoRepository implements IPedidoRepository {
           fecha_pedido: true,
           total: true,
           estado: true,
+          nombre_contacto: true,
+          email_contacto: true,
+          telefono_contacto: true,
+          direccion_envio: true,
           usuario: {
             select: {
               nombres: true,
@@ -311,10 +359,14 @@ export class PrismaPedidoRepository implements IPedidoRepository {
     if (!pedido) return null;
 
     return {
-      usuario_id: pedido.usuario_id!,
+      usuario_id: pedido.usuario_id,
+      nombre_contacto: pedido.nombre_contacto,
+      email_contacto: pedido.email_contacto,
+      telefono_contacto: pedido.telefono_contacto,
+      direccion_envio: pedido.direccion_envio,
       estado: pedido.estado as any,
       total: pedido.total.toNumber(),
-      klap_order_id: pedido.klap_order_id || undefined,
+      klap_order_id: pedido.klap_order_id ?? null,
       detalles: pedido.detalles.map(d => ({
         producto_id: d.producto_id,
         cantidad: d.cantidad,
@@ -325,12 +377,34 @@ export class PrismaPedidoRepository implements IPedidoRepository {
   }
 
   async updateStatus(id: number, estado: EstadoPedido): Promise<Pedido> {
-    return await prisma.pedido.update({
-      where: { pedido_id: id },
-      data: {
-        estado: estado,
-        fecha_cambio_estado: new Date()
+    return await prisma.$transaction(async (tx) => {
+      if (estado === EstadoPedido.Cancelado) {
+        const pedido = await tx.pedido.findUnique({
+          where: { pedido_id: id },
+          include: { detalles: true }
+        });
+
+        if (pedido && pedido.detalles) {
+          for (const detalle of pedido.detalles) {
+            await tx.producto.update({
+              where: { producto_id: detalle.producto_id },
+              data: {
+                stock: {
+                  increment: detalle.cantidad
+                }
+              }
+            });
+          }
+        }
       }
+
+      return await tx.pedido.update({
+        where: { pedido_id: id },
+        data: {
+          estado: estado,
+          fecha_cambio_estado: new Date()
+        }
+      });
     });
   }
 
@@ -382,6 +456,10 @@ export class PrismaPedidoRepository implements IPedidoRepository {
       pedido_id: pedidoActualizado.pedido_id,
       klap_order_id: pedidoActualizado.klap_order_id,
       usuario_id: pedidoActualizado.usuario_id,
+      nombre_contacto: pedidoActualizado.nombre_contacto,
+      email_contacto: pedidoActualizado.email_contacto,
+      telefono_contacto: pedidoActualizado.telefono_contacto,
+      direccion_envio: pedidoActualizado.direccion_envio,
       fecha_pedido: pedidoActualizado.fecha_pedido,
       fecha_cambio_estado: pedidoActualizado.fecha_cambio_estado,
       estado: pedidoActualizado.estado,
