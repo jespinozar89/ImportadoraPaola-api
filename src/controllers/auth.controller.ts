@@ -14,7 +14,13 @@ export class AuthController {
   async register(req: Request, res: Response) {
     try {
       const result = await this.authService.register(req.body);
-      this.correoService.enviarNotificacionBienvenida(result.email, result.nombres);
+
+      this.correoService.enviarNotificacionBienvenida(
+        result.email, 
+        result.nombres
+      )
+      .catch(err => console.error(`[Register Correo Error] No se pudo enviar a ${result.email}:`, err.message));
+
       res.status(201).json(result);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -70,7 +76,12 @@ export class AuthController {
       }
 
       if (usuario) {
-        this.correoService.enviarNotificacionUpdateDatos(usuario.email, usuario.nombres);
+        this.correoService.enviarNotificacionUpdateDatos(
+          usuario.email, 
+          usuario.nombres
+        )
+        .catch(err => console.error(`[Update Perfil Correo Error] No se pudo enviar a ${usuario.email}:`, err.message));
+
         return res.status(200).json(usuario);
       }
       else {
@@ -109,7 +120,8 @@ export class AuthController {
         email,
         usuario.nombres,
         `${process.env.BASE_URL}/resetPassword?token=${token}`
-      );
+      )
+      .catch(err => console.error(`[Reset Token Correo Error] No se pudo enviar a ${email}:`, err.message));
 
       res.status(200).json({
         message: "Se ha enviado un enlace de recuperación a su correo"

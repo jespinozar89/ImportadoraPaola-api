@@ -3,64 +3,56 @@
     "codigo": "05",
     "region": "Valparaíso",
     "comuna": "Valparaíso",
-    "costo": 2500,
-    "monto_envio_gratis": 35000,
+    "costo": 3900,
     "dias_entrega": 1
   },
   {
     "codigo": "05",
     "region": "Valparaíso",
     "comuna": "Viña del Mar",
-    "costo": 3000,
-    "monto_envio_gratis": 45000,
+    "costo": 4500,
     "dias_entrega": 1
   },
   {
     "codigo": "05",
     "region": "Valparaíso",
     "comuna": "Concón",
-    "costo": 3500,
-    "monto_envio_gratis": 50000,
+    "costo": 4900,
     "dias_entrega": 1
   },
   {
     "codigo": "05",
     "region": "Valparaíso",
     "comuna": "Quilpué",
-    "costo": 3500,
-    "monto_envio_gratis": 50000,
+    "costo": 4900,
     "dias_entrega": 1
   },
   {
     "codigo": "05",
     "region": "Valparaíso",
     "comuna": "Villa Alemana",
-    "costo": 3500,
-    "monto_envio_gratis": 50000,
+    "costo": 4900,
     "dias_entrega": 1
   },
   {
     "codigo": "05",
     "region": "Valparaíso",
     "comuna": "Limache",
-    "costo": 4000,
-    "monto_envio_gratis": 60000,
-    "dias_entrega": 2
+    "costo": 5500,
+    "dias_entrega": 1
   },
   {
     "codigo": "05",
     "region": "Valparaíso",
     "comuna": null,
-    "costo": 5000,
-    "monto_envio_gratis": 75000,
+    "costo": 6900,
     "dias_entrega": 2
   },
   {
     "codigo": null,
     "region": "General",
     "comuna": null,
-    "costo": 6500,
-    "monto_envio_gratis": 100000,
-    "dias_entrega": 3
+    "costo": 9900,
+    "dias_entrega": 2
   }
 ]

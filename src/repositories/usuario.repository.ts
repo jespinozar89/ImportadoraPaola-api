@@ -77,5 +77,47 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
 
   }
 
+  async incrementFailedAttempts(userId: number, currentAttempts: number, maxAttempts: number): Promise<void> {
+    const newAttempts = currentAttempts + 1;
+    const shouldLock = newAttempts >= maxAttempts;
+
+    await prisma.usuario.update({
+      where: { usuario_id: userId },
+      data: {
+        intentos_fallidos: newAttempts,
+        bloqueado: shouldLock
+      }
+    });
+  }
+
+  async resetFailedAttempts(userId: number): Promise<void> {
+    await prisma.usuario.update({
+      where: { usuario_id: userId },
+      data: {
+        intentos_fallidos: 0,
+        bloqueado: false
+      }
+    });
+  }
+
+  async unlockAccountAndUpdatePassword(userId: number, passwordHash: string): Promise<UsuarioPerfil | null> {
+    return await prisma.usuario.update({
+      where: { usuario_id: userId },
+      data: {
+        password_hash: passwordHash,
+        reset_token: null,
+        reset_token_expiry: null,
+        intentos_fallidos: 0,
+        bloqueado: false
+      },
+      select: {
+        nombres: true,
+        apellidos: true,
+        email: true,
+        telefono: true
+      }
+    });
+  }
+
 
 }

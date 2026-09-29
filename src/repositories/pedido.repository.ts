@@ -47,10 +47,13 @@ export class PrismaPedidoRepository implements IPedidoRepository {
           email_contacto: data.email_contacto,
           telefono_contacto: data.telefono_contacto,
           direccion_envio: data.direccion_envio,
+          tipo_entrega: data.tipo_entrega,
+          subtotal: new Prisma.Decimal(data.subtotal),
+          costo_envio: new Prisma.Decimal(data.costo_envio),
+          total: new Prisma.Decimal(data.total),
           fecha_pedido: new Date(),
           fecha_cambio_estado: new Date(),
           estado: data.estado as EstadoPedido,
-          total: new Prisma.Decimal(data.total),
           klap_order_id: data.klap_order_id ?? null,
           detalles: {
             create: data.detalles.map((d) => ({
@@ -124,6 +127,9 @@ export class PrismaPedidoRepository implements IPedidoRepository {
         select: {
           pedido_id: true,
           fecha_pedido: true,
+          tipo_entrega: true,
+          subtotal: true,
+          costo_envio: true,
           total: true,
           estado: true,
           nombre_contacto: true,
@@ -167,6 +173,7 @@ export class PrismaPedidoRepository implements IPedidoRepository {
     const totalsByStatus = {
       Pendiente: 0,
       EnPreparacion: 0,
+      Despachado: 0,
       Listo: 0,
       Entregado: 0,
       Cancelado: 0
@@ -235,6 +242,9 @@ export class PrismaPedidoRepository implements IPedidoRepository {
         select: {
           pedido_id: true,
           fecha_pedido: true,
+          tipo_entrega: true,
+          subtotal: true,
+          costo_envio: true,
           total: true,
           estado: true,
           detalles: {
@@ -364,8 +374,11 @@ export class PrismaPedidoRepository implements IPedidoRepository {
       email_contacto: pedido.email_contacto,
       telefono_contacto: pedido.telefono_contacto,
       direccion_envio: pedido.direccion_envio,
-      estado: pedido.estado as any,
+      tipo_entrega: pedido.tipo_entrega as any,
+      subtotal: pedido.subtotal.toNumber(),
+      costo_envio: pedido.costo_envio.toNumber(),
       total: pedido.total.toNumber(),
+      estado: pedido.estado as any,
       klap_order_id: pedido.klap_order_id ?? null,
       detalles: pedido.detalles.map(d => ({
         producto_id: d.producto_id,
@@ -460,10 +473,13 @@ export class PrismaPedidoRepository implements IPedidoRepository {
       email_contacto: pedidoActualizado.email_contacto,
       telefono_contacto: pedidoActualizado.telefono_contacto,
       direccion_envio: pedidoActualizado.direccion_envio,
+      tipo_entrega: pedidoActualizado.tipo_entrega,
+      subtotal: Number(pedidoActualizado.subtotal),
+      costo_envio: Number(pedidoActualizado.costo_envio),
+      total: Number(pedidoActualizado.total),
       fecha_pedido: pedidoActualizado.fecha_pedido,
       fecha_cambio_estado: pedidoActualizado.fecha_cambio_estado,
       estado: pedidoActualizado.estado,
-      total: Number(pedidoActualizado.total),
       usuario: pedidoActualizado.usuario,
       detalles: detallesFormateados
     };

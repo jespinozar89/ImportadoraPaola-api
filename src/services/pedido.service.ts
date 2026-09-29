@@ -10,7 +10,7 @@ export class PedidoService {
       throw new Error("El pedido debe contener al menos un producto.");
     }
 
-    let totalPedido = 0;
+    let subtotalCalculado = 0;
     const detallesProcesados = [];
 
     for (const item of data.detalles) {
@@ -26,7 +26,7 @@ export class PedidoService {
         ? Number(producto.precio_oferta)
         : Number(producto.precio);
 
-      totalPedido += precioEfectivo * item.cantidad;
+      subtotalCalculado += precioEfectivo * item.cantidad;
 
       detallesProcesados.push({
         producto_id: producto.producto_id,
@@ -36,14 +36,20 @@ export class PedidoService {
       });
     }
 
+    const costoEnvio = data.tipo_entrega === 'despacho' ? Number(data.costo_envio || 0) : 0;
+    const totalFinal = subtotalCalculado + costoEnvio;
+
     return await this.pedidoRepository.createTransaction({
       usuario_id: data.usuario_id ?? null,
       nombre_contacto: data.nombre_contacto,
       email_contacto: data.email_contacto,
       telefono_contacto: data.telefono_contacto,
       direccion_envio: data.direccion_envio,
+      tipo_entrega: data.tipo_entrega,
+      subtotal: subtotalCalculado,
+      costo_envio: costoEnvio,
+      total: totalFinal,
       estado: data.estado,
-      total: totalPedido,
       klap_order_id: data.klap_order_id ?? null,
       detalles: detallesProcesados
     });

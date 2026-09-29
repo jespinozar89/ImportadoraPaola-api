@@ -41,6 +41,9 @@ export class PedidoController {
         email_contacto: emailContacto,
         telefono_contacto: telefonoContacto,
         direccion_envio: req.body.direccion_envio,
+        tipo_entrega: req.body.tipo_entrega || 'retiro',
+        costo_envio: Number(req.body.costo_envio) || 0,
+        subtotal: Number(req.body.subtotal) || 0,
         estado: EstadoPedido.PendienteDeConfirmacion,
         total: req.body.total,
         detalles: req.body.detalles,
@@ -154,11 +157,12 @@ export class PedidoController {
         const emailCliente = pedidoUsuario.email_contacto;
 
         if (emailCliente) {
-          await this.correoService.enviarNotificacionReembolso(
+          this.correoService.enviarNotificacionReembolso(
             nombreCliente,
             pedidoUsuario.pedido_id.toString(),
             emailCliente
-          );
+          )
+          .catch(err => console.error(`[Reembolso Correo Error] No se pudo enviar a ${emailCliente}:`, err.message));
         }
       }
 
@@ -221,13 +225,14 @@ export class PedidoController {
         }
         : undefined;
 
-      await this.correoService.enviarCambioEstadoPedido(
+      this.correoService.enviarCambioEstadoPedido(
         emailDestino,
         nombreDestino,
         estado,
         pedido.pedido_id.toString(),
         adjunto
-      );
+      )
+      .catch(err => console.error(`[Estado Pedido Correo Error] No se pudo enviar a ${emailDestino}:`, err.message));
 
       res.status(200).json("Correo enviado exitosamente.");
     } catch (error: any) {

@@ -10,7 +10,9 @@ export class WebhookService {
     ) { }
 
     async validateStock(items: Array<{ code: string; quantity: number }>): Promise<boolean> {
-        for (const item of items) {
+        const productosAValidar = items.filter(item => item.code !== 'SHIPPING');
+
+        for (const item of productosAValidar) {
             const productoId = Number(item.code);
 
             if (isNaN(productoId)) return false;
@@ -21,6 +23,7 @@ export class WebhookService {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -39,7 +42,7 @@ export class WebhookService {
     }
 
     async updateKlapOrderId(oldKlapOrderId: string, newKlapOrderId: string): Promise<any> {
-       return await this.pedidoService.updateKlapOrderId(oldKlapOrderId, newKlapOrderId);
+        return await this.pedidoService.updateKlapOrderId(oldKlapOrderId, newKlapOrderId);
     }
 
 }

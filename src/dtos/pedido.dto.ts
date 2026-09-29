@@ -4,8 +4,11 @@ export interface CreatePedidoDTO {
   email_contacto: string;
   telefono_contacto: string;
   direccion_envio: string;
-  estado: EstadoPedido;
+  tipo_entrega: TipoEntrega; 
+  subtotal: number;       
+  costo_envio: number;      
   total: number;
+  estado: EstadoPedido;
   klap_order_id?: string | null;
   detalles: DetallePedidoDTO[];
 }
@@ -23,10 +26,16 @@ export interface UpdatePedidoDTO {
   estado: EstadoPedido;
 }
 
+export enum TipoEntrega {
+  retiro = 'retiro',
+  despacho = 'despacho'
+}
+
 export enum EstadoPedido {
   Pendiente = 'Pendiente',
   PendienteDeConfirmacion = 'PendienteDeConfirmacion',
   EnPreparacion = 'EnPreparacion',
+  Despachado = 'Despachado',
   Listo = 'Listo',
   Entregado = 'Entregado',
   Cancelado = 'Cancelado'

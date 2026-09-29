@@ -32,10 +32,36 @@ export class AuthService {
 
   async login(data: LoginDTO) {
     const usuario = await this.usuarioRepository.findByEmail(data.email);
-    if (!usuario) throw new Error("Usuario y/o contraseña ingresados no coinciden con nuestros registros.");
+    if (!usuario) {
+      throw new Error("Usuario y/o contraseña ingresados no coinciden con nuestros registros.");
+    }
+
+    if (usuario.bloqueado) {
+      throw new Error("Tu cuenta ha sido bloqueada por seguridad debido a múltiples intentos fallidos. Por favor, restablece tu contraseña para desbloquearla.");
+    }
 
     const validPass = await bcrypt.compare(data.password, usuario.password_hash);
-    if (!validPass) throw new Error("Usuario y/o contraseña ingresados no coinciden con nuestros registros.");
+
+    if (!validPass) {
+      const MAX_ATTEMPTS = 5;
+      await this.usuarioRepository.incrementFailedAttempts(
+        usuario.usuario_id,
+        usuario.intentos_fallidos,
+        MAX_ATTEMPTS
+      );
+
+      const remainingAttempts = MAX_ATTEMPTS - (usuario.intentos_fallidos + 1);
+
+      if (remainingAttempts <= 0) {
+        throw new Error("Has superado el límite de intentos permitidos. Tu cuenta ha sido bloqueada. Restablece tu contraseña para volver a ingresar.");
+      }
+
+      throw new Error("Usuario y/o contraseña ingresados no coinciden con nuestros registros.");
+    }
+
+    if (usuario.intentos_fallidos > 0) {
+      await this.usuarioRepository.resetFailedAttempts(usuario.usuario_id);
+    }
 
     const jwtSecret: string = process.env.JWT_SECRET as string;
     const tokenExpiresIn = process.env.TOKEN_EXPIRES_IN || '1h';
@@ -104,21 +130,24 @@ export class AuthService {
       throw new Error("El enlace de recuperación no es válido.");
     }
 
-    if (usuario.reset_token_expiry && newPassword && new Date() > usuario.reset_token_expiry) {
+    if (usuario.reset_token_expiry && new Date() > usuario.reset_token_expiry) {
       throw new Error("El enlace ha expirado. Por favor, solicita uno nuevo.");
     }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(newPassword, salt);
 
-    return await this.usuarioRepository.updateProfile(usuario.usuario_id!, { password: passwordHash });
+    return await this.usuarioRepository.unlockAccountAndUpdatePassword(
+      usuario.usuario_id!,
+      passwordHash
+    );
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {
     return this.usuarioRepository.findByEmail(email);
   }
 
-  async findById(id: number ): Promise<UsuarioPerfil | null> {
+  async findById(id: number): Promise<UsuarioPerfil | null> {
     return this.usuarioRepository.findById(id);
   }
 

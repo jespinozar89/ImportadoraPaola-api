@@ -23,9 +23,15 @@ enum EstadoPedido {
   Pendiente
   PendienteDeConfirmacion
   EnPreparacion
+  Despachado
   Listo
   Entregado
   Cancelado
+}
+
+enum TipoEntrega {
+  retiro
+  despacho
 }
 
 // --- Modelos ---
@@ -41,6 +47,9 @@ model Usuario {
   fecha_registro     DateTime  @default(now()) @db.Timestamp(0)
   reset_token        String?   @unique
   reset_token_expiry DateTime?
+  intentos_fallidos  Int       @default(0)
+  bloqueado          Boolean   @default(false)
+  bloqueado_hasta    DateTime?
 
   // Relaciones
   pedidos   Pedido[]
@@ -129,7 +138,14 @@ model Pedido {
   fecha_pedido        DateTime     @default(now()) @db.Timestamp(0)
   fecha_cambio_estado DateTime?
   estado              EstadoPedido @default(Pendiente)
+ 
+ // Nombramiento explícito de los montos
+  subtotal            Decimal      @default(0) @db.Decimal(10, 2)
+  costo_envio         Decimal      @default(0) @db.Decimal(10, 2)
   total               Decimal      @default(0) @db.Decimal(10, 2)
+
+  // Información del tipo de envío
+  tipo_entrega        TipoEntrega  @default(retiro)
 
   // Datos de usuario y Invitado
   nombre_contacto     String       @db.VarChar(150)

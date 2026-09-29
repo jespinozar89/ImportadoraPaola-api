@@ -4,11 +4,11 @@ export interface User {
   first_name: string;
   last_name: string;
   phone: string;
-  address_line: string;
-  address_city: string;
-  address_state: string;
-  country: string;
-  postal_code: string;
+  address_line?: string;
+  address_city?: string;
+  address_state?: string;
+  country?: string;
+  postal_code?: string;
 }
 
 export interface Item {

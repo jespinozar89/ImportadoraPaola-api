@@ -4,11 +4,12 @@ import { Item, User } from "@/dtos/klap.dto";
 
 export class KlapService {
 
-    async createOrder(referenceId: string, user: User, items: Item[], total: number) {
+    async createOrder(referenceId: string, user: User, items: Item[], total: number, shipTo?: any) {
         try {
             const body = {
                 reference_id: referenceId,
                 user,
+                ...(shipTo ? { ship_to: shipTo } : {}),
                 amount: {
                     currency: "CLP",
                     total,
@@ -25,18 +26,13 @@ export class KlapService {
                     { key: "tarjetas_expiration_minutes", value: "30" },
                     { key: "notify_payment_merchant", value: "true" },
                     { key: "notify_payment_user", value: "true" },
-                    { key: "notify_payment_email_merchant", value: "javier.espinoza1989@gmail.com" },
+                    { key: "notify_payment_email_merchant", value: process.env.SMTP_BCC },
                 ],
                 webhooks: {
-                    webhook_validation: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/validation",
-                    webhook_confirm: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/confirm",
-                    webhook_reject: "https://sunbeamed-unambiguously-shela.ngrok-free.dev/api/webhooks/reject"
+                    webhook_validation: process.env.WEBHOOK_VALIDATION_URL,
+                    webhook_confirm: process.env.WEBHOOK_CONFIRM_URL,
+                    webhook_reject: process.env.WEBHOOK_REJECT_URL
                 },
-                // webhooks: {
-                //     webhook_validation: "https://libreriapaola.cl/api/webhooks/validation",
-                //     webhook_confirm: "https://libreriapaola.cl/api/webhooks/confirm",
-                //     webhook_reject: "https://libreriapaola.cl/api/webhooks/reject",
-                // },
             };
 
             const response = await axios.post(`${klapConfig.apiUrl}/payment-gateway/v1/orders`, body, {

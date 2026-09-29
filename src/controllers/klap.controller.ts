@@ -14,16 +14,55 @@ export class KlapController {
         const { referenceId, user, items, total } = req.body;
 
         try {
-            const userId = req.usuarioId || null;
-
             if (!user || !user.email || !user.first_name || !user.last_name) {
                 return res.status(400).json({ error: "Los datos del comprador (first_name, last_name, email) son requeridos." });
             }
 
-            const order = await this.klapService.createOrder(referenceId, user, items, total);
-            res.json(order);
+            let shipTo = undefined;
+
+            const addressLine = String(user.address_line || '').trim();
+            const addressCity = String(user.address_city || '').trim();
+            const addressState = String(user.address_state || '').trim();
+            const firstName = String(user.first_name || '').trim();
+            const lastName = String(user.last_name || '').trim();
+            const phone = String(user.phone || '').trim();
+            const email = String(user.email || '').trim();
+            const rut = user.rut ? String(user.rut).trim() : null;
+
+            const esRetiroEnTienda = addressLine.toLowerCase().includes('retiro');
+
+            if (addressLine && addressCity && addressState && !esRetiroEnTienda) {
+                shipTo = {
+                    first_name: firstName.substring(0, 60),
+                    last_name: lastName.substring(0, 60),
+                    phone: phone ? phone.substring(0, 15) : undefined,
+                    address_line: addressLine.substring(0, 60),
+                    address_city: addressCity.substring(0, 50),
+                    address_state: addressState.substring(0, 20),
+                    country: 'CL'
+                };
+            }
+
+            const userLimpio = {
+                email: email.substring(0, 200),
+                rut: rut ? rut.substring(0, 15) : '',
+                first_name: firstName.substring(0, 60),
+                last_name: lastName.substring(0, 60),
+                phone: phone.substring(0, 15)
+            };
+
+            const order = await this.klapService.createOrder(
+                referenceId,
+                userLimpio,
+                items,
+                total,
+                shipTo
+            );
+
+            return res.json(order);
         } catch (err: any) {
-            res.status(500).json({ error: err.message });
+            console.error("Error en CreateOrder Klap:", err);
+            return res.status(500).json({ error: err.message });
         }
     }
 
@@ -48,7 +87,7 @@ export class KlapController {
 
         try {
             const userId = req.usuarioId || null;
-            const userRol = req.rol; 
+            const userRol = req.rol;
 
             if (!orderId || typeof orderId !== 'string') {
                 return res.status(400).json({ error: "orderId es requerido y debe ser un string" });
