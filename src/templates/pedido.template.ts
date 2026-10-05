@@ -28,9 +28,9 @@ export const getConfirmacionPedidoTemplate = (data: DatosPedido) => {
         </td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
           ${tieneOferta
-            ? `<span style="text-decoration: line-through; color: #888; font-size: 12px; display: block;">$${item.precio_unitario.toLocaleString('es-CL')}</span>                <strong style="color: #e53e3e;">$${item.precio_unitario_oferta!.toLocaleString('es-CL')}</strong>`
-            : `$${item.precio_unitario.toLocaleString('es-CL')}`
-          }
+        ? `<span style="text-decoration: line-through; color: #888; font-size: 12px; display: block;">$${item.precio_unitario.toLocaleString('es-CL')}</span>                <strong style="color: #e53e3e;">$${item.precio_unitario_oferta!.toLocaleString('es-CL')}</strong>`
+        : `$${item.precio_unitario.toLocaleString('es-CL')}`
+      }
         </td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">
           ${item.cantidad}
@@ -52,7 +52,11 @@ export const getConfirmacionPedidoTemplate = (data: DatosPedido) => {
     <tr>
       <td colspan="3" style="padding: 5px 10px; text-align: right; color: #555;">Envío:</td>
       <td style="padding: 5px 10px; text-align: right; font-weight: bold;">
-        ${esDespacho ? `$${data.costo_envio.toLocaleString('es-CL')}` : '<span style="color: #28a745;">Gratis (Retiro)</span>'}
+        <!-- ${esDespacho ? `$${data.costo_envio.toLocaleString('es-CL')}` : '<span style="color: #28a745;">Gratis (Retiro)</span>'} -->
+        ${esDespacho 
+          ? '<span style="display: inline-block; padding: 6px 12px; font-size: 11px; font-weight: bold; color: #212529; background-color: #ffc107; border-radius: 4px; text-transform: uppercase; text-align: center; line-height: 1.3; vertical-align: middle;">Por Cobrar vía<br>Starken</span>' 
+          : '<span style="color: #28a745;">Gratis (Retiro)</span>'
+        }
       </td>
     </tr>
     <tr>
@@ -105,9 +109,9 @@ export const getConfirmacionPedidoTemplate = (data: DatosPedido) => {
     <div style="margin-top: 30px; padding: 20px; background-color: #fff3cd; border-radius: 5px; color: #856404; font-size: 14px;">
       <strong>Información importante:</strong> 
       <p style="margin-top: 5px;">
-        ${esDespacho 
-          ? 'Te enviaremos una notificación por correo cuando tu pedido haya sido despachado.' 
-          : 'Te avisaremos por este mismo medio cuando tu pedido esté listo para retirar en tienda.'}
+        ${esDespacho
+      ? 'Te enviaremos una notificación por correo cuando tu pedido haya sido despachado.'
+      : 'Te avisaremos por este mismo medio cuando tu pedido esté listo para retirar en tienda.'}
       </p>
     </div>
 

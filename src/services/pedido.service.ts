@@ -36,7 +36,8 @@ export class PedidoService {
       });
     }
 
-    const costoEnvio = data.tipo_entrega === 'despacho' ? Number(data.costo_envio || 0) : 0;
+    //const costoEnvio = data.tipo_entrega === 'despacho' ? Number(data.costo_envio || 0) : 0;
+    const costoEnvio = 0;
     const totalFinal = subtotalCalculado + costoEnvio;
 
     return await this.pedidoRepository.createTransaction({
