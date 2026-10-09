@@ -1,3 +1,5 @@
+process.env.TZ = 'America/Santiago';
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -60,7 +62,7 @@ const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
   console.log(`🚀 API corriendo en puerto ${PORT}`);
-  console.log(`📖 Swagger docs disponibles en http://localhost:${PORT}/api-docs`);
+  console.log(`📖 Swagger docs disponibles en http://localhost:${PORT}/api-docs (${new Date().toLocaleString('es-CL')})`);
 });
 
 ["SIGINT", "SIGTERM"].forEach(signal => {

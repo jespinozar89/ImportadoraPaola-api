@@ -59,9 +59,7 @@ export class AuthService {
       throw new Error("Usuario y/o contraseña ingresados no coinciden con nuestros registros.");
     }
 
-    if (usuario.intentos_fallidos > 0) {
-      await this.usuarioRepository.resetFailedAttempts(usuario.usuario_id);
-    }
+    await this.usuarioRepository.updateLastLogin(usuario.usuario_id);
 
     const jwtSecret: string = process.env.JWT_SECRET as string;
     const tokenExpiresIn = process.env.TOKEN_EXPIRES_IN || '1h';

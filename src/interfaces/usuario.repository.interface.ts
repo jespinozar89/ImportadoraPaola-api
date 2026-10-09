@@ -8,8 +8,8 @@ export interface IUsuarioRepository {
   findById(id: number): Promise<UsuarioPerfil | null>;
   findByToken(token: string): Promise<UsuarioPerfil | null>;
   updateProfile(userId: number, data: UpdateUserDTO): Promise<UsuarioPerfil | null>;
+  updateLastLogin(userId: number): Promise<void>;
   generateResetToken(resetToken: resetTokenDTO): Promise<string>;
   incrementFailedAttempts(userId: number, currentAttempts: number, maxAttempts: number): Promise<void>;
-  resetFailedAttempts(userId: number): Promise<void>;
   unlockAccountAndUpdatePassword(userId: number, passwordHash: string): Promise<UsuarioPerfil | null>;
 }

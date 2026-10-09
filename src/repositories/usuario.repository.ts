@@ -30,7 +30,7 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
 
   async findByToken(token: string): Promise<UsuarioPerfil | null> {
     return await prisma.usuario.findUnique({
-      where: { reset_token: token},
+      where: { reset_token: token },
       select: {
         usuario_id: true,
         nombres: true,
@@ -63,6 +63,17 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
     });
   }
 
+  async updateLastLogin(userId: number): Promise<void> {
+    await prisma.usuario.update({
+      where: { usuario_id: userId },
+      data: {
+        ultima_conexion: new Date(),
+        intentos_fallidos: 0,
+        bloqueado: false
+      }
+    });
+  }
+
   async generateResetToken(resetToken: resetTokenDTO): Promise<string> {
     return await prisma.usuario.update({
       where: { email: resetToken.email },
@@ -86,16 +97,6 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
       data: {
         intentos_fallidos: newAttempts,
         bloqueado: shouldLock
-      }
-    });
-  }
-
-  async resetFailedAttempts(userId: number): Promise<void> {
-    await prisma.usuario.update({
-      where: { usuario_id: userId },
-      data: {
-        intentos_fallidos: 0,
-        bloqueado: false
       }
     });
   }
