@@ -1,5 +1,3 @@
-process.env.TZ = 'America/Santiago';
-
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -12,10 +10,13 @@ import pedidoRoutes from "./routes/pedido.routes";
 import favoritoRoutes from "./routes/favorito.routes";
 import carritoRoutes from "./routes/carrito.routes";
 import klapRoutes from "./routes/klap.routes";
-import webhookRoutes from "./routes/webhook.routes";
+import webhookRoutes from "./routes/KlapWebhook.routes";
 import direccionRoutes from "./routes/direccion.routes";
 import ubicacionesRoutes from "./routes/ubicaciones.routes";
 import tarifaRoutes from "./routes/tarifa.routes";
+import starkenRoutes from "./routes/starken.routes";
+import envioRoutes from "./routes/envio.routes";
+import starkenWebhookRoutes from "./routes/starkenWebhook.routes";
 
 dotenv.config();
 
@@ -53,10 +54,13 @@ app.use("/api/pedidos", pedidoRoutes);
 app.use("/api/favoritos", favoritoRoutes);
 app.use("/api/carrito", carritoRoutes);
 app.use("/api/klap", klapRoutes);
-app.use("/api/webhooks", webhookRoutes); 
 app.use("/api/direcciones", direccionRoutes);
 app.use('/api/ubicaciones', ubicacionesRoutes);
 app.use('/api/tarifas', tarifaRoutes);
+app.use('/api/starken', starkenRoutes);
+app.use('/api/envios', envioRoutes);
+app.use("/api/webhooks", webhookRoutes); 
+app.use('/api/webhooks', starkenWebhookRoutes);
 
 const PORT = process.env.PORT || 3000;
 

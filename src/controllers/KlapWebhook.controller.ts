@@ -1,11 +1,11 @@
 import { CorreoService } from "@/services/correo.service";
-import { WebhookService } from "../services/webhook.service";
+import { KlapWebhookService } from "../services/klapWebhook.service";
 import { Request, Response } from "express";
 
-export class WebhookController {
+export class KlapWebhookController {
 
     constructor(
-        private webhookService: WebhookService,
+        private webhookService: KlapWebhookService,
         private correoService: CorreoService
     ) { }
 

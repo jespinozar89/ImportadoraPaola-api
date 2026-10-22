@@ -27,6 +27,8 @@ enum EstadoPedido {
   Listo
   Entregado
   Cancelado
+  EnDevolucion
+  ConExcepcion
 }
 
 enum TipoEntrega {
@@ -34,10 +36,32 @@ enum TipoEntrega {
   despacho
 }
 
+enum Courier {
+  STARKEN
+  CHILEXPRESS
+  OTRO
+}
+
+enum EstadoEnvio {
+  CREADO
+  EN_TRANSITO_A_DESTINO
+  RECIBIDO_EN_AGENCIA
+  EN_REPARTO
+  ENTREGADO
+  NO_ENTREGADO
+  DEVUELTO
+  REDESTINADO
+  CERRADO_CON_EXCEPCION
+  PENDIENTE
+  ANULADO
+}
+
 // --- Modelos ---
 
 model Usuario {
   usuario_id         Int       @id @default(autoincrement())
+  rut                Int?      @unique             
+  dv                 String?   @db.VarChar(1)
   nombres            String    @db.VarChar(100)
   apellidos          String    @db.VarChar(100)
   telefono           String    @db.VarChar(20)
@@ -157,6 +181,7 @@ model Pedido {
   // Relaciones
   usuario  Usuario?         @relation(fields: [usuario_id], references: [usuario_id])
   detalles ProductoPedido[]
+  envio    Envio?
 
   @@map("Pedidos")
 }
@@ -199,4 +224,49 @@ model Carrito {
   producto Producto @relation(fields: [producto_id], references: [producto_id], onDelete: Cascade)
 
   @@unique([usuario_id, producto_id])
+}
+
+model Envio {
+  envio_id           Int         @id @default(autoincrement())
+  pedido_id          Int         @unique
+  courier            Courier     @default(STARKEN)
+  numero_flete       String      @unique @db.VarChar(50)
+  numero_flete_nuevo String?     @db.VarChar(50)
+  estado             EstadoEnvio @default(CREADO)
+
+  fecha_despacho  DateTime? @db.Timestamp(0)
+  fecha_entrega   DateTime? @db.Timestamp(0)
+  rut_recibe      String?   @db.VarChar(20)
+  nombre_recibe   String?   @db.VarChar(150)
+  latitud         String?   @db.VarChar(50)
+  longitud        String?   @db.VarChar(50)
+  url_comprobante String?   @db.Text
+
+  tipo_devolucion String? @db.VarChar(150)
+  observacion     String? @db.Text
+
+  creado_en      DateTime @default(now()) @db.Timestamp(0)
+  actualizado_en DateTime @updatedAt @db.Timestamp(0)
+
+  pedido    Pedido           @relation(fields: [pedido_id], references: [pedido_id], onDelete: Cascade)
+  historial HistorialEnvio[]
+
+  @@map("Envios")
+}
+
+model HistorialEnvio {
+  historial_id       Int      @id @default(autoincrement())
+  envio_id           Int
+  estado_macro       String   @db.VarChar(100)
+  estado_micro       Int?
+  descripcion_estado String?  @db.Text
+  fecha_evento       DateTime @db.Timestamp(0)
+  raw_payload        Json?
+
+  creado_en DateTime @default(now()) @db.Timestamp(0)
+
+  envio Envio @relation(fields: [envio_id], references: [envio_id], onDelete: Cascade)
+
+  @@index([envio_id])
+  @@map("HistorialesEnvios")
 }

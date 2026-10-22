@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { webhookController } from "../config/container";
+import { klapWebhookController } from "../config/container";
 import { validateApikey } from "../middlewares/klap.middlewares";
 
 const router = Router();
@@ -38,7 +38,7 @@ const router = Router();
 *       400:
 *         description: Error en la validación
 */
-router.post("/validation", webhookController.validation.bind(webhookController));
+router.post("/validation", klapWebhookController.validation.bind(klapWebhookController));
 
 /**
  * @openapi
@@ -74,7 +74,7 @@ router.post("/validation", webhookController.validation.bind(webhookController))
  *       400:
  *         description: Error en la confirmación
  */
-router.post("/confirm",validateApikey, webhookController.confirm.bind(webhookController));
+router.post("/confirm",validateApikey, klapWebhookController.confirm.bind(klapWebhookController));
 
 /**
 * @openapi
@@ -110,7 +110,7 @@ router.post("/confirm",validateApikey, webhookController.confirm.bind(webhookCon
 *       400:
 *         description: Error en el rechazo
 */
-router.post("/reject",validateApikey, webhookController.reject.bind(webhookController));
+router.post("/reject",validateApikey, klapWebhookController.reject.bind(klapWebhookController));
 
 export default router;
 

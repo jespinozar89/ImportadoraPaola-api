@@ -2,7 +2,7 @@ import { DetallePedidoDTO } from "@/dtos/pedido.dto";
 import { PedidoService } from "./pedido.service";
 import { ProductoService } from "./producto.service";
 
-export class WebhookService {
+export class KlapWebhookService {
 
     constructor(
         private pedidoService: PedidoService,

@@ -12,40 +12,43 @@ const router = Router();
  * /api/productos:
  *   get:
  *     summary: Obtener todos los productos
- *     description: Retorna una lista paginada de productos aplicando filtros enviados en el body.
+ *     description: Retorna una lista paginada de productos aplicando filtros mediante Query Parameters.
  *     tags:
  *       - Productos
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               page:
- *                 type: integer
- *                 default: 1
- *                 description: Número de página para la paginación.
- *               limit:
- *                 type: integer
- *                 default: 10
- *                 description: Cantidad de productos por página.
- *               estado:
- *                 type: string
- *                 enum: [Activo, Inactivo]
- *                 description: Filtrar productos por estado de la categoría.
- *               categoria_id:
- *                 type: integer
- *                 description: Filtrar productos por ID de categoría.
- *               search:
- *                 type: string
- *                 description: Texto de búsqueda en nombre o descripción del producto.
- *             example:
- *               page: 1
- *               limit: 10
- *               estado: "Activo"
- *               categoria_id: 3
- *               search: "Laptop"
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número de página para la paginación.
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Cantidad de productos por página.
+ *         example: 10
+ *       - in: query
+ *         name: estado
+ *         schema:
+ *           type: string
+ *           enum: [Activo, Inactivo]
+ *         description: Filtrar productos por estado.
+ *         example: "Activo"
+ *       - in: query
+ *         name: categoria_id
+ *         schema:
+ *           type: integer
+ *         description: Filtrar productos por ID de categoría.
+ *         example: 3
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Texto de búsqueda en nombre o descripción del producto.
+ *         example: "Laptop"
  *     responses:
  *       200:
  *         description: Lista de productos obtenida exitosamente.

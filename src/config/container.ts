@@ -41,9 +41,22 @@ import { KlapService } from "../services/klap.service";
 import { KlapController } from "../controllers/klap.controller";
 
 //webhook
-import { WebhookController } from '../controllers/webhook.controller';
-import { WebhookService } from "../services/webhook.service";
+import { KlapWebhookController } from '../controllers/KlapWebhook.controller';
+import { KlapWebhookService } from "../services/klapWebhook.service";
 import { TarifaController } from "@/controllers/tarifa.controller";
+
+// Módulo Starken
+import { StarkenService } from "../services/starken.service";
+import { StarkenController } from "../controllers/starken.controller";
+
+// Módulo Envío
+import { PrismaEnvioRepository } from "../repositories/envio.repository";
+import { EnvioService } from "../services/envio.service";
+import { EnvioController } from "../controllers/envio.controller";
+
+// Módulo Starken Webhook
+import { StarkenWebhookService } from "../services/starkenWebhook.service";
+import { StarkenWebhookController } from "../controllers/starkenWebhook.controller";
 
 // --- Correo Module Instances ---
 const correoService = new CorreoService();
@@ -69,8 +82,8 @@ const pedidoService = new PedidoService(pedidoRepository);
 const pedidoController = new PedidoController(pedidoService,authService, correoService);
 
 // --- Webhook ---
-const webhookService = new WebhookService(pedidoService,productoService);
-const webhookController = new WebhookController(webhookService,correoService);
+const webhookService = new KlapWebhookService(pedidoService,productoService);
+const klapWebhookController = new KlapWebhookController(webhookService,correoService);
 
 // --- Klap Module ---
 const klapService = new KlapService();
@@ -91,6 +104,19 @@ const direccionRepository = new PrismaDireccionRepository();
 const direccionService = new DireccionService(direccionRepository);
 const direccionController = new DireccionController(direccionService);
 
+// --- Starken Module Instances ---
+const starkenService = new StarkenService();
+const starkenController = new StarkenController(starkenService);
+
+// --- Envio Module Instances ---
+const envioRepository = new PrismaEnvioRepository();
+const envioService = new EnvioService(envioRepository);
+const envioController = new EnvioController(envioService);
+
+// --- Starken Webhook Instances ---
+const starkenWebhookService = new StarkenWebhookService(envioService);
+const starkenWebhookController = new StarkenWebhookController(starkenWebhookService);
+
 export { 
     authController, 
     categoriaController,
@@ -99,6 +125,9 @@ export {
     favoritoController,
     carritoController,
     klapController,
-    webhookController,
-    direccionController
+    klapWebhookController,
+    direccionController,
+    starkenController,
+    starkenWebhookController,
+    envioController
 };
