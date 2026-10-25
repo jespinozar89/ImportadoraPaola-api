@@ -40,6 +40,23 @@ export class EnvioService {
       throw new Error(`No se encontró un registro de envío para la orden de carga #${freightNumber}`);
     }
 
+    if (updateData.numero_flete !== undefined) {
+      const numeroFlete = updateData.numero_flete.trim();
+      if (!numeroFlete) {
+        throw new Error('El número de flete no puede estar vacío.');
+      }
+      if (numeroFlete.length > 50) {
+        throw new Error('El número de flete no puede superar los 50 caracteres.');
+      }
+
+      const shipmentWithFreightNumber = await this.envioRepository.findByFreightNumber(numeroFlete);
+      if (shipmentWithFreightNumber && shipmentWithFreightNumber.envio_id !== shipment.envio_id) {
+        throw new Error(`El envío con número de flete #${numeroFlete} ya existe.`);
+      }
+
+      updateData = { ...updateData, numero_flete: numeroFlete };
+    }
+
     return await this.envioRepository.updateShipmentStatus(shipment.envio_id, updateData);
   }
 }

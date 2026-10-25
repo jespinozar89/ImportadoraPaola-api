@@ -104,7 +104,7 @@ router.post(
  * @openapi
  * /api/envios/freight/{freightNumber}/status:
  *   patch:
- *     summary: Actualizar estado de envío e insertar evento en historial
+ *     summary: Actualizar datos de envío e insertar evento en historial
  *     tags:
  *       - Envíos
  *     parameters:
@@ -121,18 +121,19 @@ router.post(
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - estado
  *             properties:
  *               estado:
  *                 type: string
  *                 example: "EN_TRANSITO_A_DESTINO"
+ *               numero_flete:
+ *                 type: string
+ *                 example: "222582292"
  *               descripcion_estado:
  *                 type: string
  *                 example: "Paquete en ruta a la sucursal de destino"
  *     responses:
  *       200:
- *         description: Estado del envío actualizado correctamente.
+ *         description: Datos del envío actualizados correctamente.
  *       400:
  *         description: Error de validación o envío no encontrado.
  */

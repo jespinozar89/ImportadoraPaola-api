@@ -12,10 +12,11 @@ export interface CreateShipmentDTO {
 }
 
 export interface UpdateShipmentStatusDTO {
-  estado: EstadoEnvio;
+  estado?: EstadoEnvio;
   estado_macro?: string | null;
   estado_micro?: number | null;
   descripcion_estado?: string | null;
+  numero_flete?: string;
   numero_flete_nuevo?: string;
   nombre_recibe?: string | null;
   rut_recibe?: string | null;

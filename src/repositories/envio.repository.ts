@@ -1,7 +1,7 @@
 import prisma from "../config/prisma";
 import { CreateShipmentDTO, UpdateShipmentStatusDTO } from "@/dtos/envio.dto";
 import { IEnvioRepository } from "@/interfaces/envio.repository.interface";
-import { Courier, Envio, EstadoEnvio, HistorialEnvio } from "@prisma/client";
+import { Courier, Envio, EstadoEnvio, EstadoPedido, HistorialEnvio } from "@prisma/client";
 
 export class PrismaEnvioRepository implements IEnvioRepository {
 
@@ -29,6 +29,32 @@ export class PrismaEnvioRepository implements IEnvioRepository {
 
   async createShipment(data: CreateShipmentDTO): Promise<Envio> {
     return prisma.$transaction(async (tx) => {
+      const pedido = await tx.pedido.findUnique({
+        where: { pedido_id: data.pedido_id },
+        select: { estado: true }
+      });
+
+      if (!pedido) {
+        throw new Error(`No se encontró el pedido #${data.pedido_id}.`);
+      }
+
+      if (pedido.estado === EstadoPedido.Cancelado) {
+        throw new Error(`No se puede crear un envío para el pedido #${data.pedido_id} porque está cancelado.`);
+      }
+
+      const debeDespachar = pedido.estado === EstadoPedido.Pendiente
+        || pedido.estado === EstadoPedido.EnPreparacion;
+      const actualizacionPedido = await tx.pedido.updateMany({
+        where: { pedido_id: data.pedido_id, estado: pedido.estado },
+        data: debeDespachar
+          ? { estado: EstadoPedido.Despachado, fecha_cambio_estado: new Date() }
+          : { estado: pedido.estado }
+      });
+
+      if (actualizacionPedido.count !== 1) {
+        throw new Error(`El estado del pedido #${data.pedido_id} cambió durante la creación del envío. Intente nuevamente.`);
+      }
+
       const nuevoEnvio = await tx.envio.create({
         data: {
           pedido_id: data.pedido_id,
@@ -60,10 +86,14 @@ export class PrismaEnvioRepository implements IEnvioRepository {
     updateData: UpdateShipmentStatusDTO
   ): Promise<Envio> {
     return prisma.$transaction(async (tx) => {
-      const dataToUpdate: Record<string, any> = {
-        estado: updateData.estado,
-      };
+      const dataToUpdate: Record<string, any> = {};
 
+      if (updateData.estado !== undefined) {
+        dataToUpdate.estado = updateData.estado;
+      }
+      if (updateData.numero_flete !== undefined) {
+        dataToUpdate.numero_flete = updateData.numero_flete;
+      }
       if (updateData.numero_flete_nuevo !== undefined) {
         dataToUpdate.numero_flete_nuevo = updateData.numero_flete_nuevo;
       }
@@ -89,8 +119,8 @@ export class PrismaEnvioRepository implements IEnvioRepository {
         dataToUpdate.observacion = updateData.observacion;
       }
       if (updateData.fecha_entrega !== undefined) {
-        dataToUpdate.fecha_entrega = updateData.fecha_entrega 
-          ? new Date(updateData.fecha_entrega) 
+        dataToUpdate.fecha_entrega = updateData.fecha_entrega
+          ? new Date(updateData.fecha_entrega)
           : null;
       }
 
@@ -99,12 +129,22 @@ export class PrismaEnvioRepository implements IEnvioRepository {
         data: dataToUpdate,
       });
 
+      if (
+        updateData.numero_flete !== undefined &&
+        Object.keys(updateData).every((key) => key === 'numero_flete')
+      ) {
+        return envioActualizado;
+      }
+
+      const estadoMacroFinal = updateData.estado_macro ||
+        (updateData.estado ? String(updateData.estado) : 'ACTUALIZACION_DATOS');
+
       await tx.historialEnvio.create({
         data: {
           envio_id: envioId,
-          estado_macro: updateData.estado_macro || String(updateData.estado),
+          estado_macro: estadoMacroFinal,
           estado_micro: updateData.estado_micro ?? null,
-          descripcion_estado: updateData.descripcion_estado ?? null,
+          descripcion_estado: updateData.descripcion_estado ?? 'Actualización en los datos del envío',
           fecha_evento: new Date(),
           raw_payload: updateData.raw_payload ?? undefined,
         }
