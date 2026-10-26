@@ -1,5 +1,7 @@
-import { envioController } from '../config/container';
 import { Router } from 'express';
+import { envioController } from '../config/container';
+import { authenticateToken, authorizeRole } from "../middlewares/auth.middleware";
+import { Rol } from '@prisma/client';
 
 const router = Router();
 
@@ -97,6 +99,8 @@ router.get(
  */
 router.post(
   '/',
+  authenticateToken,
+  authorizeRole([Rol.administrador]),
   envioController.createShipment.bind(envioController)
 );
 
@@ -139,6 +143,8 @@ router.post(
  */
 router.patch(
   '/freight/:freightNumber/status',
+  authenticateToken,
+  authorizeRole([Rol.administrador]),
   envioController.updateShipmentStatus.bind(envioController)
 );
 

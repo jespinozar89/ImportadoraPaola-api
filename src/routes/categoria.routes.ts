@@ -46,7 +46,7 @@ router.get("/:id", categoriaController.findById.bind(categoriaController));
  *     tags:
  *       - Categorías
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -81,7 +81,7 @@ router.post(
  *     tags:
  *       - Categorías
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -123,7 +123,7 @@ router.put(
  *     tags:
  *       - Categorías
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: id
  *         in: path

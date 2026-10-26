@@ -9,22 +9,31 @@ export interface AuthRequest extends Request {
   nombre?: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret_key_fallback';
+const getJwtSecret = (res: Response): string | undefined => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    res.status(500).json({ message: 'La autenticación no está configurada correctamente.' });
+    return undefined;
+  }
+  return secret;
+};
 
 /**
  * Middleware para autenticar obligatoriamente al usuario usando un token JWT.
  */
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = req.cookies?.token;
 
   if (!token) {
     return res.status(401).json({ message: 'Token de acceso no proporcionado.' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
+  const jwtSecret = getJwtSecret(res);
+  if (!jwtSecret) return;
+
+  jwt.verify(token, jwtSecret, (err: jwt.VerifyErrors | null, user: jwt.JwtPayload | string | undefined) => {
     if (err) {
-      return res.status(403).json({ message: 'Token de acceso inválido o expirado.' });
+      return res.status(401).json({ message: 'Token de acceso inválido o expirado.' });
     }
 
     const payload = user as { id: number; rol: Rol; email: string; nombre: string };
@@ -44,8 +53,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
  * - Si el token es válido: Inyecta los datos del usuario en el Request (req.usuarioId, req.rol, etc.).
  */
 export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = req.cookies?.token;
 
   if (!token) {
     req.usuarioId = undefined;
@@ -53,7 +61,10 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
     return next();
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
+  const jwtSecret = getJwtSecret(res);
+  if (!jwtSecret) return;
+
+  jwt.verify(token, jwtSecret, (err: jwt.VerifyErrors | null, user: jwt.JwtPayload | string | undefined) => {
     if (!err && user) {
       const payload = user as { id: number; rol: Rol; email: string; nombre: string };
       req.usuarioId = payload.id;

@@ -8,14 +8,14 @@ const options = {
     info: { title: 'Paola Store API', version: '1.0.0' },
     components: {
       securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+        cookieAuth: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'token',
         },
       }
     },
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
   },
   apis: ['./src/routes/*.ts'],
 };

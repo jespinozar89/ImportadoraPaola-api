@@ -3,6 +3,11 @@ import { AuthService } from "../services/auth.service";
 import { CorreoService } from "../services/correo.service";
 import { AuthRequest } from "@/middlewares/auth.middleware";
 import { LoginDTO, UpdateUserDTO } from '../dtos/usuario.dto';
+import {
+  getAuthClearCookieOptions,
+  getAuthCookieName,
+  getAuthCookieOptions
+} from "../utils/auth-cookie";
 
 export class AuthController {
 
@@ -30,10 +35,21 @@ export class AuthController {
   async login(req: Request, res: Response) {
     try {
       const result = await this.authService.login(req.body);
-      res.status(200).json(result);
-    } catch (error: any) {
-      res.status(401).json({ message: error.message });
+      res.cookie(getAuthCookieName(), result.token, getAuthCookieOptions());
+      res.status(200).json({ usuario: result.usuario });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error al iniciar sesión.";
+      if (message.includes("TOKEN_EXPIRES_IN") || message.includes("clave secreta JWT")) {
+        console.error("Error de configuración de autenticación:", message);
+        return res.status(500).json({ message: "Error de configuración del servidor." });
+      }
+      res.status(401).json({ message });
     }
+  }
+
+  logout(_req: Request, res: Response) {
+    res.clearCookie(getAuthCookieName(), getAuthClearCookieOptions());
+    res.status(200).json({ message: "Sesión cerrada correctamente." });
   }
 
   async getPerfil(req: AuthRequest, res: Response) {

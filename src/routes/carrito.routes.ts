@@ -15,7 +15,7 @@ router.use(authenticateToken);
  *       - Carrito
  *     description: Si el producto ya existe, suma la cantidad; si no, lo agrega.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -53,7 +53,7 @@ router.post("/", carritoController.addItem.bind(carritoController));
  *       - Carrito
  *     description: Lista todos los ítems en el carrito del usuario autenticado.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       '200':
  *         description: Contenido del carrito.
@@ -92,7 +92,7 @@ router.get("/", carritoController.getMyCart.bind(carritoController));
  *       - Carrito
  *     description: Lista todos los ítems en el carrito del usuario autenticado con detalles del producto.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       '200':
  *         description: Contenido detallado del carrito.
@@ -126,7 +126,7 @@ router.get("/detailed", carritoController.getDetailedCart.bind(carritoController
  *       - Carrito
  *     description: Actualiza la cantidad de un ítem específico del carrito. Si la cantidad es 0 o menos, se elimina el ítem.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: carritoId
  *         in: path
@@ -161,7 +161,7 @@ router.patch("/:carritoId", carritoController.updateQuantity.bind(carritoControl
  *       - Carrito
  *     description: Elimina todos los ítems asociados al usuario autenticado.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       '204':
  *         description: Carrito vaciado exitosamente.
@@ -178,7 +178,7 @@ router.delete("/clear", carritoController.clearCart.bind(carritoController));
  *       - Carrito
  *     description: Elimina completamente un ítem (fila) del carrito de compras.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: carritoId
  *         in: path

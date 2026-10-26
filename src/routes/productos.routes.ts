@@ -155,7 +155,7 @@ router.get("/:id", productoController.findById.bind(productoController));
  *     tags:
  *       - Productos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -199,7 +199,7 @@ router.post(
  *     tags:
  *       - Productos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -269,7 +269,7 @@ router.post(
  *     tags:
  *       - Productos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -319,7 +319,7 @@ router.put(
  *     tags:
  *       - Productos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: id
  *         in: path

@@ -12,7 +12,7 @@ const router = Router();
  *     tags:
  *       - Direcciones
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Lista de direcciones del usuario
@@ -29,7 +29,7 @@ router.get("/", authenticateToken, direccionController.obtenerMisDirecciones.bin
  *     tags:
  *       - Direcciones
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -72,7 +72,7 @@ router.post("/", authenticateToken, direccionController.create.bind(direccionCon
  *     tags:
  *       - Direcciones
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -114,7 +114,7 @@ router.put("/:id", authenticateToken, direccionController.update.bind(direccionC
  *     tags:
  *       - Direcciones
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -137,7 +137,7 @@ router.delete("/:id", authenticateToken, direccionController.delete.bind(direcci
  *     tags:
  *       - Direcciones
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id

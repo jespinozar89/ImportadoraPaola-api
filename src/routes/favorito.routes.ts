@@ -13,9 +13,9 @@ router.use(authenticateToken);
  *     summary: Agregar un producto a mis favoritos
  *     tags:
  *       - Favoritos
- *     description: Requiere token de autenticación. No permite duplicados.
+ *     description: Requiere cookie de autenticación. No permite duplicados.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -49,7 +49,7 @@ router.post("/", favoritoController.add.bind(favoritoController));
  *       - Favoritos
  *     description: Devuelve la lista de favoritos del usuario autenticado, incluyendo los detalles del producto.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       '200':
  *         description: Lista obtenida exitosamente
@@ -97,7 +97,7 @@ router.get("/", favoritoController.getAll.bind(favoritoController));
  *       - Favoritos
  *     description: Elimina un producto de la lista de favoritos del usuario autenticado. Se debe enviar el ID del producto por URL.
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: productoId
  *         in: path

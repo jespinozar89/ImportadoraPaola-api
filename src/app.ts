@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import prisma from "./config/prisma";
 import { setupSwagger } from "./config/swagger";
@@ -43,6 +44,7 @@ app.use(cors({
   credentials: true
 }));
 
+app.use(cookieParser());
 app.use(express.json({ limit: '5mb' }));
 setupSwagger(app);
 
@@ -79,6 +81,5 @@ const server = app.listen(PORT, () => {
     });
   });
 });
-
 
 

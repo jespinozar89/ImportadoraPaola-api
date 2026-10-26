@@ -13,7 +13,7 @@ const router = Router();
  *     tags:
  *       - Pedidos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -50,7 +50,7 @@ router.post(
  *     tags:
  *       - Pedidos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -91,7 +91,7 @@ router.post(
  *     tags:
  *       - Pedidos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -135,7 +135,7 @@ router.put(
  *     tags:
  *       - Pedidos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Lista de pedidos del usuario autenticado
@@ -155,7 +155,7 @@ router.get(
  *     tags:
  *       - Pedidos   # Agrupa la ruta bajo la categoría "Pedidos"
  *     security:
- *       - bearerAuth: []   # Requiere autenticación JWT con rol cliente
+ *       - cookieAuth: []   # Requiere cookie de autenticación con rol cliente
  *     parameters:
  *       - name: id
  *         in: path
@@ -188,7 +188,7 @@ router.get(
  *     tags:
  *       - Pedidos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -216,7 +216,7 @@ router.get(
  *     tags:
  *       - Pedidos
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Lista de todos los pedidos

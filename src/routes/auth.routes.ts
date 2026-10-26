@@ -56,11 +56,24 @@ router.post("/register", authController.register.bind(authController));
  *                 type: string
  *     responses:
  *       200:
- *         description: Login exitoso, devuelve token JWT
+ *         description: Login exitoso; establece una cookie de sesión HttpOnly
  *       401:
  *         description: Credenciales inválidas
  */
 router.post("/login", authController.login.bind(authController));
+
+/**
+ * @openapi
+ * /api/auth/logout:
+ *   post:
+ *     summary: Cerrar la sesión del usuario
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: Cookie de autenticación eliminada
+ */
+router.post("/logout", authController.logout.bind(authController));
 
 /**
  * @openapi
@@ -70,7 +83,7 @@ router.post("/login", authController.login.bind(authController));
  *     tags:
  *       - Auth
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -178,7 +191,7 @@ router.put('/resetPassword', authController.resetPassword.bind(authController));
  *     tags:
  *       - Auth
  *     security:
- *       - bearerAuth: []   # Indica que requiere JWT en el header Authorization
+ *       - cookieAuth: []   # Requiere la cookie HttpOnly de autenticación
  *     responses:
  *       200:
  *         description: Perfil del usuario autenticado
