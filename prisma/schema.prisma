@@ -175,6 +175,7 @@ model Pedido {
   // Datos de usuario y Invitado
   nombre_contacto     String       @db.VarChar(150)
   email_contacto      String       @db.VarChar(150)
+  rut_contacto        String       @db.VarChar(10)
   telefono_contacto   String       @db.VarChar(50)
   direccion_envio     String       @db.Text
 

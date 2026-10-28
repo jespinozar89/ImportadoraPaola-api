@@ -5,6 +5,7 @@ import { RequestHelpers } from '../utils/request-helpers';
 import { CreatePedidoDTO, EstadoPedido } from '../dtos/pedido.dto';
 import { CorreoService } from '@/services/correo.service';
 import { AuthService } from '@/services/auth.service';
+import { parseChileanRut } from '../utils/chilean-rut';
 
 export class PedidoController {
   constructor(
@@ -19,6 +20,7 @@ export class PedidoController {
       let nombreContacto = req.body.nombre_contacto;
       let emailContacto = req.body.email_contacto;
       let telefonoContacto = req.body.telefono_contacto;
+      let rutContacto = req.body.rut_contacto;
 
       if (userId) {
         const user = await this.authService.findById(userId);
@@ -26,7 +28,19 @@ export class PedidoController {
           if (!nombreContacto) nombreContacto = `${user.nombres} ${user.apellidos}`.trim();
           if (!emailContacto) emailContacto = user.email;
           if (!telefonoContacto) telefonoContacto = user.telefono;
+          rutContacto = user.rut != null && user.dv
+            ? `${user.rut}-${user.dv}`
+            : null;
         }
+      }
+
+      const rut = parseChileanRut(rutContacto);
+      if (!rut) {
+        return res.status(400).json({
+          message: userId
+            ? "Tu RUT no está registrado o no es válido. Actualízalo en el menú Perfil para continuar."
+            : "El RUT de contacto ingresado no es válido."
+        });
       }
 
       if (!nombreContacto || !emailContacto || !telefonoContacto || !req.body.direccion_envio) {
@@ -39,6 +53,7 @@ export class PedidoController {
         usuario_id: userId,
         nombre_contacto: nombreContacto,
         email_contacto: emailContacto,
+        rut_contacto: rut.formatted,
         telefono_contacto: telefonoContacto,
         direccion_envio: req.body.direccion_envio,
         tipo_entrega: req.body.tipo_entrega || 'retiro',

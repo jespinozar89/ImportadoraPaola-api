@@ -3,6 +3,7 @@ import { AuthService } from "../services/auth.service";
 import { CorreoService } from "../services/correo.service";
 import { AuthRequest } from "@/middlewares/auth.middleware";
 import { LoginDTO, UpdateUserDTO } from '../dtos/usuario.dto';
+import { parseChileanRut } from '../utils/chilean-rut';
 import {
   getAuthClearCookieOptions,
   getAuthCookieName,
@@ -71,6 +72,11 @@ export class AuthController {
       if (!usuarioId) throw new Error("Usuario no identificado");
       if (rol === 'administrador') throw new Error("Usuario no identificado");
 
+      const rut = parseChileanRut(req.body.rut);
+      if (!rut) {
+        return res.status(400).json({ message: "El RUT ingresado no es válido." });
+      }
+
       const LoginDTO: LoginDTO = {
         email: req.body.email,
         password: req.body.password
@@ -80,6 +86,8 @@ export class AuthController {
         nombres: req.body.nombres,
         apellidos: req.body.apellidos,
         telefono: req.body.telefono,
+        rut: rut.rut,
+        dv: rut.dv,
         password: req.body.passwordNew
       };
 

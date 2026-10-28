@@ -27,7 +27,12 @@ const router = Router();
  *                   type: object
  *                   properties:
  *                     producto_id:
- *                       type: integer
+ *                        type: integer
+               rut_contacto:
+                 type: string
+                 description: RUT chileno de contacto con dígito verificador válido
+             required:
+               - rut_contacto
  *                     cantidad:
  *                       type: integer
  *     responses:

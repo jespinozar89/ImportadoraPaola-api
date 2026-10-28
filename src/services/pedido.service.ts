@@ -44,6 +44,7 @@ export class PedidoService {
       usuario_id: data.usuario_id ?? null,
       nombre_contacto: data.nombre_contacto,
       email_contacto: data.email_contacto,
+      rut_contacto: data.rut_contacto,
       telefono_contacto: data.telefono_contacto,
       direccion_envio: data.direccion_envio,
       tipo_entrega: data.tipo_entrega,

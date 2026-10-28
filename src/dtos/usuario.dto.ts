@@ -12,6 +12,8 @@ export interface UpdateUserDTO {
   email?: string;
   telefono?: string;
   password?: string;
+  rut?: number | null;
+  dv?: string | null;
   rol?: string;
 }
 
@@ -32,6 +34,8 @@ export interface UsuarioPerfil {
   apellidos: string;
   telefono: string;
   email: string;
+  rut?: number | null;
+  dv?: string | null;
   rol?: string;
   reset_token?: string;
   reset_token_expiry?: Date | null;

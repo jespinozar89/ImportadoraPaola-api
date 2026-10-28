@@ -82,6 +82,8 @@ export class AuthService {
         telefono: usuario.telefono,
         nombres: usuario.nombres,
         apellidos: usuario.apellidos,
+        rut: usuario.rut,
+        dv: usuario.dv,
         rol: usuario.rol
       }
     };

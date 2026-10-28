@@ -23,6 +23,8 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
         apellidos: true,
         telefono: true,
         email: true,
+        rut: true,
+        dv: true,
         rol: true
       }
     });
@@ -50,6 +52,8 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
         ...(data.nombres && { nombres: data.nombres }),
         ...(data.apellidos && { apellidos: data.apellidos }),
         ...(data.telefono && { telefono: data.telefono }),
+        ...(data.rut !== undefined && { rut: data.rut }),
+        ...(data.dv !== undefined && { dv: data.dv }),
         ...(data.password && { password_hash: data.password }),
         reset_token: null,
         reset_token_expiry: null
@@ -59,6 +63,8 @@ export class PrismaUsuarioRepository implements IUsuarioRepository {
         apellidos: true,
         email: true,
         telefono: true,
+        rut: true,
+        dv: true,
       }
     });
   }
