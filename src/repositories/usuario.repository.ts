@@ -3,11 +3,34 @@ import { type Usuario } from "@prisma/client";
 import type { IUsuarioRepository } from "../interfaces/usuario.repository.interface";
 import { UpdateUserDTO, UsuarioPerfil } from "@/dtos/usuario.dto";
 import { resetTokenDTO } from '../dtos/usuario.dto';
+import { Prisma } from '@prisma/client';
+import { DuplicateUserDataError } from '../errors/duplicate-user-data.error';
 
 export class PrismaUsuarioRepository implements IUsuarioRepository {
 
   async create(data: any): Promise<Usuario> {
-    return await prisma.usuario.create({ data });
+    try {
+      return await prisma.usuario.create({ data });
+    } catch (error: unknown) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const target = error.meta?.target;
+        const fields = Array.isArray(target)
+          ? target.map(String).join(' ').toLowerCase()
+          : typeof target === 'string'
+            ? target.toLowerCase()
+            : '';
+
+        const field = fields.includes('rut')
+          ? 'rut'
+          : fields.includes('email')
+            ? 'email'
+            : 'unknown';
+
+        throw new DuplicateUserDataError(field);
+      }
+
+      throw error;
+    }
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {

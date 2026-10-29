@@ -4,6 +4,7 @@ export interface CreateUserDTO {
   email: string;
   password: string;
   telefono?: string;
+  rut: string;
 }
 
 export interface UpdateUserDTO {

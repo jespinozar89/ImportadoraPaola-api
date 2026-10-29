@@ -3,7 +3,8 @@ import { AuthService } from "../services/auth.service";
 import { CorreoService } from "../services/correo.service";
 import { AuthRequest } from "@/middlewares/auth.middleware";
 import { LoginDTO, UpdateUserDTO } from '../dtos/usuario.dto';
-import { parseChileanRut } from '../utils/chilean-rut';
+import { DuplicateUserDataError } from '../errors/duplicate-user-data.error';
+import { ProfileRutError } from '../errors/profile-rut.error';
 import {
   getAuthClearCookieOptions,
   getAuthCookieName,
@@ -28,8 +29,31 @@ export class AuthController {
       .catch(err => console.error(`[Register Correo Error] No se pudo enviar a ${result.email}:`, err.message));
 
       res.status(201).json(result);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
+    } catch (error: unknown) {
+      if (error instanceof DuplicateUserDataError) {
+        if (error.field === 'rut') {
+          return res.status(409).json({
+            message: 'Este RUT ya está asociado a una cuenta. Inicia sesión o recupera el acceso.'
+          });
+        }
+
+        if (error.field === 'email') {
+          return res.status(409).json({ message: 'El correo ya está registrado.' });
+        }
+
+        return res.status(409).json({
+          message: 'No se pudo crear la cuenta porque uno de los datos ya está registrado.'
+        });
+      }
+
+      if (error instanceof Error && error.message === 'El RUT ingresado no es válido.') {
+        return res.status(400).json({ message: error.message });
+      }
+
+      console.error('Error inesperado al registrar usuario:', error);
+      return res.status(500).json({
+        message: 'No fue posible crear la cuenta. Intenta nuevamente más tarde.'
+      });
     }
   }
 
@@ -72,11 +96,6 @@ export class AuthController {
       if (!usuarioId) throw new Error("Usuario no identificado");
       if (rol === 'administrador') throw new Error("Usuario no identificado");
 
-      const rut = parseChileanRut(req.body.rut);
-      if (!rut) {
-        return res.status(400).json({ message: "El RUT ingresado no es válido." });
-      }
-
       const LoginDTO: LoginDTO = {
         email: req.body.email,
         password: req.body.password
@@ -86,8 +105,6 @@ export class AuthController {
         nombres: req.body.nombres,
         apellidos: req.body.apellidos,
         telefono: req.body.telefono,
-        rut: rut.rut,
-        dv: rut.dv,
         password: req.body.passwordNew
       };
 
@@ -96,7 +113,7 @@ export class AuthController {
       const login = await this.authService.login(LoginDTO);
 
       if (login.token) {
-        usuario = await this.authService.actualizarPerfil(usuarioId, userData);
+        usuario = await this.authService.actualizarPerfil(usuarioId, userData, req.body.rut);
       }
 
       if (usuario) {
@@ -112,10 +129,18 @@ export class AuthController {
         return res.status(404).json(null);
       }
 
-    } catch (error: any) {
-      let msg = "Error al actualizar el perfil del usuario";
+    } catch (error: unknown) {
+      if (error instanceof ProfileRutError) {
+        if (error.reason === 'cannot_modify') {
+          return res.status(403).json({
+            message: "Tu RUT ya es válido y no puede modificarse por motivos de seguridad."
+          });
+        }
+        return res.status(400).json({ message: "El RUT ingresado no es válido." });
+      }
+
       console.error("Error en updatePerfil:", error);
-      return res.status(404).json({ message: msg });
+      return res.status(404).json({ message: "Error al actualizar el perfil del usuario" });
     }
 
   }

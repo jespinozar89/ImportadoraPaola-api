@@ -5,6 +5,9 @@ import type { IUsuarioRepository } from "../interfaces/usuario.repository.interf
 import type { CreateUserDTO, LoginDTO, UpdateUserDTO, UsuarioPerfil } from "../dtos/usuario.dto";
 import { resetTokenDTO } from '../dtos/usuario.dto';
 import { Usuario } from '@prisma/client';
+import { parseChileanRut } from '../utils/chilean-rut';
+import { DuplicateUserDataError } from '../errors/duplicate-user-data.error';
+import { ProfileRutError } from '../errors/profile-rut.error';
 
 export class AuthService {
 
@@ -12,7 +15,10 @@ export class AuthService {
 
   async register(data: CreateUserDTO) {
     const existe = await this.usuarioRepository.findByEmail(data.email);
-    if (existe) throw new Error("El correo ya está registrado");
+    if (existe) throw new DuplicateUserDataError('email');
+
+    const rut = parseChileanRut(data.rut);
+    if (!rut) throw new Error("El RUT ingresado no es válido.");
 
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(data.password, salt);
@@ -22,6 +28,8 @@ export class AuthService {
       apellidos: data.apellidos,
       email: data.email,
       telefono: data.telefono,
+      rut: rut.rut,
+      dv: rut.dv,
       password_hash: password_hash,
       rol: 'cliente'
     });
@@ -93,12 +101,38 @@ export class AuthService {
     return this.usuarioRepository.findById(id);
   }
 
-  async actualizarPerfil(id: number, data: UpdateUserDTO): Promise<UsuarioPerfil | null> {
-    if (data.password) {
-      const salt = await bcrypt.genSalt(10);
-      data.password = await bcrypt.hash(data.password, salt);
+  async actualizarPerfil(
+    id: number,
+    data: UpdateUserDTO,
+    rutSolicitado: unknown
+  ): Promise<UsuarioPerfil | null> {
+    const perfilActual = await this.usuarioRepository.findById(id);
+    if (!perfilActual) return null;
+    const dataActualizada: UpdateUserDTO = { ...data };
+
+    const rutActual = perfilActual.rut != null && perfilActual.dv
+      ? `${perfilActual.rut}-${perfilActual.dv}`
+      : '';
+    const rutActualValido = !!parseChileanRut(rutActual);
+    const rutNuevo = parseChileanRut(rutSolicitado);
+
+    if (rutActualValido) {
+      if (!rutNuevo || rutNuevo.rut !== perfilActual.rut || rutNuevo.dv !== perfilActual.dv) {
+        throw new ProfileRutError('cannot_modify');
+      }
+      delete dataActualizada.rut;
+      delete dataActualizada.dv;
+    } else {
+      if (!rutNuevo) throw new ProfileRutError('invalid');
+      dataActualizada.rut = rutNuevo.rut;
+      dataActualizada.dv = rutNuevo.dv;
     }
-    return this.usuarioRepository.updateProfile(id, data);
+
+    if (dataActualizada.password) {
+      const salt = await bcrypt.genSalt(10);
+      dataActualizada.password = await bcrypt.hash(dataActualizada.password, salt);
+    }
+    return this.usuarioRepository.updateProfile(id, dataActualizada);
   }
 
   async generateResetToken(email: string): Promise<string> {
